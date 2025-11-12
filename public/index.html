@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vote en ligne - PetitPass</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase -->
+    <script type="module" src="./script.js" defer></script>
+
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #323234 0%, #240047 100%);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .pulse-click {
+            animation: pulseClick 2s infinite;
+        }
+
+        @keyframes pulseClick {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .admin-btn {
+            transition: all 0.3s ease;
+        }
+
+        .admin-btn:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-4xl w-full relative">
+        <!-- Bouton Admin discret en haut à droite -->
+        <a href="./admin.html"
+            class="admin-btn absolute -top-2 -right-2 bg-blue-500 hover:bg-blue-900 text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg z-10"
+            title="Accès administrateur">
+            <i class="fas fa-cog text-sm"></i>
+        </a>
+
+        <!-- Carte principale -->
+        <div class="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden fade-in">
+            <!-- En-tête -->
+            <div class="bg-gradient-to-r from-purple-600 to-indigo-700 text-white p-6 text-center relative">
+                <div class="flex justify-center items-center mb-3">
+                    <i class="fas fa-vote-yea text-3xl mr-2"></i>
+                    <h1 class="text-3xl font-bold">Vote en ligne</h1>
+                </div>
+                <p class="text-purple-200 text-sm">PetitPass - Faites entendre votre voix</p>
+            </div>
+
+            <!-- Contenu -->
+            <div class="p-6">
+                <!-- Section des résultats (toujours visible) -->
+                <div id="results-section" class="mb-6 fade-in">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">
+                            📊 Résultats en direct
+                        </h2>
+                        <p class="text-gray-600 text-sm">Les statistiques sont publiques et mises à jour en temps réel
+                        </p>
+                    </div>
+
+                    <!-- Cartes des statistiques compactes -->
+                    <div class="grid grid-cols-3 gap-4 mb-6">
+                        <div
+                            class="bg-gradient-to-br from-purple-500 to-purple-700 text-white p-4 rounded-xl text-center">
+                            <div
+                                class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-user-tie text-xl"></i>
+                            </div>
+                            <h3 class="text-lg font-bold mb-1">Violet</h3>
+                            <div class="vote-count text-2xl font-bold">0</div>
+                            <p class="text-purple-200 text-xs">votes</p>
+                        </div>
+
+                        <div
+                            class="bg-gradient-to-br from-amber-600 to-amber-800 text-white p-4 rounded-xl text-center">
+                            <div
+                                class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-user-tie text-xl"></i>
+                            </div>
+                            <h3 class="text-lg font-bold mb-1">Marron</h3>
+                            <div class="vote-count text-2xl font-bold">0</div>
+                            <p class="text-amber-200 text-xs">votes</p>
+                        </div>
+
+                        <div
+                            class="bg-gradient-to-br from-yellow-400 to-yellow-600 text-gray-800 p-4 rounded-xl text-center">
+                            <div
+                                class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-user-tie text-xl"></i>
+                            </div>
+                            <h3 class="text-lg font-bold mb-1">Jaune</h3>
+                            <div class="vote-count text-2xl font-bold">0</div>
+                            <p class="text-yellow-800 text-xs">votes</p>
+                        </div>
+                    </div>
+
+                    <!-- Instructions de vote -->
+                    <div class="text-center mb-4">
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                            <div class="flex items-center justify-center space-x-2 text-yellow-800">
+                                <i class="fas fa-mouse-pointer text-lg pulse-click"></i>
+                                <span class="text-sm font-semibold">Pour voter : Cliquez sur la couleur de votre
+                                    choix mais avant veiller vous inscrire pour etre admissible au vote</span>
+                                <i class="fas fa-hand-point-down text-lg"></i>
+                            </div>
+                            <p class="text-yellow-700 text-xs mt-1">⚠️ Le vote est définitif et ne peut être modifié</p>
+                        </div>
+                    </div>
+
+                    <!-- Graphique des résultats -->
+                    <div class="bg-gray-50 rounded-xl p-4 mb-4">
+                        <h3 class="text-lg font-bold text-gray-800 mb-3 text-center">
+                            <i class="fas fa-chart-bar mr-2 text-purple-600"></i>
+                            Évolution des votes
+                        </h3>
+                        <div class="bg-white rounded-lg p-3 shadow-sm">
+                            <canvas id="voteChart" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section inscription/vote -->
+                <div class="border-t pt-6">
+                    <!-- Instructions de vote -->
+                    <div class="text-center mb-4">
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                            <div class="flex items-center justify-center space-x-2 text-yellow-800">
+                                <i class="fas fa-mouse-pointer text-lg pulse-click"></i>
+                                <span class="text-sm font-semibold">Pour voter : Cliquez sur la couleur de votre
+                                    choix</span>
+                                <i class="fas fa-hand-point-down text-lg"></i>
+                            </div>
+                            <p class="text-yellow-700 text-xs mt-1">⚠️ Le vote est définitif et ne peut être modifié</p>
+                        </div>
+                    </div>
+
+                    <!-- Formulaire d'inscription -->
+                    <div id="register-section" class="text-center mb-6 fade-in">
+                        <div class="bg-blue-50 rounded-xl p-4 mb-4">
+                            <h2 class="text-xl font-bold text-gray-800 mb-3">🗳️ Je veux voter !</h2>
+                            <p class="text-gray-600 text-sm mb-3">Inscrivez-vous avec votre email pour participer</p>
+
+                            <form id="user-form" class="max-w-md mx-auto space-y-3">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1 text-left">Adresse
+                                        email</label>
+                                    <input type="email" id="user-email" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm"
+                                        placeholder="votre@email.com">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1 text-left">Niveau de
+                                        classe</label>
+                                    <select title="select" id="class-level" required
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm">
+                                        <option value="">Choisissez votre niveau</option>
+                                        <option value="L1">L1</option>
+                                        <option value="L2">L2</option>
+                                        <option value="L3">L3</option>
+                                        <option value="L4">L4</option>
+                                        <option value="L5">L5</option>
+                                    </select>
+                                </div>
+
+                                <button type="submit"
+                                    class="w-full btn-primary text-white px-6 py-3 rounded-full font-semibold text-sm shadow-lg mt-2">
+                                    <i class="fas fa-user-plus mr-2"></i>
+                                    M'inscrire et voter
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Informations utilisateur connecté -->
+                    <div id="user-info-section" class="hidden text-center mb-4 fade-in">
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-3 inline-block">
+                            <p class="text-green-800 font-semibold text-sm">
+                                <i class="fas fa-user-check mr-1"></i>
+                                Connecté :
+                                <span id="current-user-email" class="font-bold"></span>
+                                - <span id="current-user-class" class="font-bold"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Zone de vote compacte -->
+                    <div id="vote-section" class="hidden fade-in">
+                        <div class="text-center mb-4">
+                            <h2 class="text-xl font-bold text-gray-800 mb-2">
+                                Choisissez votre candidat
+                            </h2>
+                            <p class="text-gray-600 text-sm">Cliquez sur le candidat de votre choix</p>
+                        </div>
+
+                        <!-- Cartes des candidats compactes -->
+                        <div class="grid grid-cols-3 gap-3 mb-4">
+                            <div class="candidate-card card-hover bg-gradient-to-br from-purple-500 to-purple-700 text-white p-3 rounded-xl text-center cursor-pointer relative"
+                                data-id="violet">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-user-tie text-lg"></i>
+                                    </div>
+                                    <i class="fas fa-mouse-pointer text-white/70 text-sm"></i>
+                                </div>
+                                <h3 class="text-sm font-bold mb-1">Violet</h3>
+                                <p class="text-purple-100 text-xs mb-1">Innovation</p>
+                                <div class="text-lg font-bold">Voter</div>
+                            </div>
+
+                            <div class="candidate-card card-hover bg-gradient-to-br from-amber-600 to-amber-800 text-white p-3 rounded-xl text-center cursor-pointer relative"
+                                data-id="marron">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-user-tie text-lg"></i>
+                                    </div>
+                                    <i class="fas fa-mouse-pointer text-white/70 text-sm"></i>
+                                </div>
+                                <h3 class="text-sm font-bold mb-1">Marron</h3>
+                                <p class="text-amber-100 text-xs mb-1">Tradition</p>
+                                <div class="text-lg font-bold">Voter</div>
+                            </div>
+
+                            <div class="candidate-card card-hover bg-gradient-to-br from-yellow-400 to-yellow-600 text-gray-800 p-3 rounded-xl text-center cursor-pointer relative"
+                                data-id="jaune">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-user-tie text-lg"></i>
+                                    </div>
+                                    <i class="fas fa-mouse-pointer text-yellow-800/70 text-sm"></i>
+                                </div>
+                                <h3 class="text-sm font-bold mb-1">Jaune</h3>
+                                <p class="text-yellow-900 text-xs mb-1">Énergie</p>
+                                <div class="text-lg font-bold">Voter</div>
+                            </div>
+                        </div>
+
+                        <!-- Instructions de vote -->
+                        <div class="bg-purple-50 border border-purple-200 rounded-lg p-3 mb-3">
+                            <div class="flex items-center justify-center space-x-2 text-purple-800">
+                                <i class="fas fa-mouse-pointer"></i>
+                                <span class="text-sm font-semibold">Cliquez sur la couleur de votre choix</span>
+                            </div>
+                            <p class="text-purple-700 text-xs text-center mt-1">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                Attention : Le vote est définitif et unique
+                            </p>
+                        </div>
+
+                        <!-- Bouton de déconnexion -->
+                        <div class="text-center">
+                            <button id="logout-btn"
+                                class="border border-gray-300 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-50 transition-colors inline-flex items-center text-sm">
+                                <i class="fas fa-sign-out-alt mr-1"></i>
+                                Me déconnecter
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Message après vote -->
+                    <div id="after-vote-section" class="hidden text-center fade-in">
+                        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+                            <i class="fas fa-check-circle text-3xl text-green-500 mb-2"></i>
+                            <h2 class="text-lg font-bold text-gray-800 mb-1">✅ Vote enregistré !</h2>
+                            <p class="text-gray-600 text-sm mb-2">Merci pour votre participation.</p>
+                            <p class="text-xs text-gray-500">Votre vote a été comptabilisé et ne peut être modifié.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations -->
+                <div class="text-center bg-blue-50 rounded-lg p-3 border border-blue-200 mt-6">
+                    <p class="text-xs text-blue-800">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Les résultats sont publics. Chaque email = un vote unique.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
