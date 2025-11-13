@@ -26,8 +26,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// Détection mobile améliorée
+function isMobile() {
+    return window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
 // 🌐 Éléments du DOM
-const resultsSection = document.getElementById("results-section");
 const registerSection = document.getElementById("register-section");
 const userForm = document.getElementById("user-form");
 const userInfoSection = document.getElementById("user-info-section");
@@ -37,7 +41,6 @@ const logoutBtn = document.getElementById("logout-btn");
 const currentUserEmail = document.getElementById("current-user-email");
 const currentUserClass = document.getElementById("current-user-class");
 const candidateCards = document.querySelectorAll(".candidate-card");
-const statsCards = document.querySelectorAll(".stats-card");
 
 let chart;
 let currentUser = null;
@@ -67,7 +70,6 @@ function initChart(votes) {
                     ],
                     borderWidth: 2,
                     borderRadius: 12,
-                    borderSkipped: false,
                 },
             ],
         },
@@ -75,9 +77,7 @@ function initChart(votes) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    display: false
-                },
+                legend: { display: false },
                 tooltip: {
                     backgroundColor: 'rgba(0, 0, 0, 0.8)',
                     padding: 12,
@@ -88,58 +88,28 @@ function initChart(votes) {
             scales: {
                 y: {
                     beginAtZero: true,
-                    ticks: {
-                        stepSize: 1,
-                        font: {
-                            size: 12
-                        }
-                    },
-                    grid: {
-                        color: 'rgba(0, 0, 0, 0.1)'
-                    }
+                    ticks: { stepSize: 1 }
                 },
                 x: {
-                    ticks: {
-                        font: {
-                            size: 12,
-                            weight: 'bold'
-                        }
-                    },
-                    grid: {
-                        display: false
-                    }
+                    ticks: { font: { weight: 'bold' } }
                 }
             },
-            animation: {
-                duration: 1000,
-                easing: 'easeOutQuart'
-            }
         },
     });
 }
 
-// 🔄 Mettre à jour les compteurs de votes (pour les stats publiques)
+// 🔄 Mettre à jour les compteurs de votes - CORRIGÉ
 function updateVoteCounts(votes) {
-    // Mettre à jour les cartes de statistiques
-    statsCards.forEach(card => {
-        const candidateId = card.querySelector('.candidate-card') ? card.querySelector('.candidate-card').getAttribute('data-id') : null;
-        if (candidateId) {
-            const countElement = card.querySelector('.vote-count');
-            countElement.textContent = votes[candidateId] || 0;
-        }
-    });
-
-    // Mettre à jour aussi les cartes stats principales
-    const violetCount = document.querySelector('.stats-card:nth-child(1) .vote-count');
-    const marronCount = document.querySelector('.stats-card:nth-child(2) .vote-count');
-    const jauneCount = document.querySelector('.stats-card:nth-child(3) .vote-count');
-
-    if (violetCount) violetCount.textContent = votes.violet || 0;
-    if (marronCount) marronCount.textContent = votes.marron || 0;
-    if (jauneCount) jauneCount.textContent = votes.jaune || 0;
+    // Sélectionner les éléments par leur position dans le grid
+    const voteCounts = document.querySelectorAll('.vote-count');
+    if (voteCounts.length >= 3) {
+        voteCounts[0].textContent = votes.violet || 0;
+        voteCounts[1].textContent = votes.marron || 0;
+        voteCounts[2].textContent = votes.jaune || 0;
+    }
 }
 
-// 🔄 Écoute en temps réel des votes (public)
+// 🔄 Écoute en temps réel des votes
 onSnapshot(collection(db, "votes"), (snapshot) => {
     let votes = { violet: 0, marron: 0, jaune: 0 };
     snapshot.forEach((doc) => (votes[doc.id] = doc.data().count || 0));
@@ -159,14 +129,12 @@ userForm.addEventListener("submit", async (e) => {
         return;
     }
 
-    // Validation basique d'email
     if (!isValidEmail(userEmail)) {
         showAlert("Veuillez entrer une adresse email valide", "error");
         return;
     }
 
     try {
-        // Vérifier si l'utilisateur a déjà voté
         const userRef = doc(db, "users", userEmail);
         const userSnap = await getDoc(userRef);
 
@@ -175,21 +143,17 @@ userForm.addEventListener("submit", async (e) => {
             return;
         }
 
-        // Enregistrer l'utilisateur (sans vote pour l'instant)
         currentUser = {
             email: userEmail,
             classLevel: classLevel
         };
 
-        // Sauvegarder dans localStorage
         saveUserToLocalStorage(currentUser);
 
-        // Afficher les sections de vote
         registerSection.classList.add("hidden");
         userInfoSection.classList.remove("hidden");
         voteSection.classList.remove("hidden");
 
-        // Afficher les infos utilisateur
         currentUserEmail.textContent = currentUser.email;
         currentUserClass.textContent = classLevel;
 
@@ -210,78 +174,109 @@ logoutBtn.addEventListener("click", () => {
     voteSection.classList.add("hidden");
     afterVoteSection.classList.add("hidden");
 
-    // Réactiver les cartes de vote
     candidateCards.forEach(card => {
         card.style.opacity = '1';
         card.style.cursor = 'pointer';
-        card.classList.add('card-hover');
     });
 
-    // Reset du formulaire
     userForm.reset();
 });
 
-// 🗳️ Gestion du vote
-candidateCards.forEach((card) => {
-    card.addEventListener("click", async () => {
-        if (!currentUser) {
-            showAlert("Veuillez vous inscrire d'abord", "error");
+// 🗳️ Gestion du vote - Version Mobile Compatible
+function setupVoteHandlers() {
+    candidateCards.forEach((card) => {
+        // Supprimer les anciens écouteurs
+        card.replaceWith(card.cloneNode(true));
+    });
+
+    // Resélectionner après clonage
+    const newCandidateCards = document.querySelectorAll(".candidate-card");
+
+    newCandidateCards.forEach((card) => {
+        // Événement pour desktop
+        card.addEventListener("click", handleVote);
+
+        // Événements pour mobile
+        card.addEventListener("touchstart", function (e) {
+            if (isMobile()) {
+                this.style.transform = 'scale(0.95)';
+                this.style.opacity = '0.8';
+            }
+        });
+
+        card.addEventListener("touchend", function (e) {
+            if (isMobile()) {
+                e.preventDefault();
+                this.style.transform = 'scale(1)';
+                this.style.opacity = '1';
+                handleVote.call(this, e);
+            }
+        });
+    });
+}
+
+// Fonction de vote centralisée
+async function handleVote(e) {
+    if (!currentUser) {
+        showAlert("Veuillez vous inscrire d'abord", "error");
+        return;
+    }
+
+    const candidateId = this.getAttribute("data-id");
+    const voteRef = doc(db, "votes", candidateId);
+    const userRef = doc(db, "users", currentUser.email);
+
+    try {
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists() && userSnap.data().hasVoted) {
+            showAlert("Vous avez déjà voté !", "error");
             return;
         }
 
-        const candidateId = card.getAttribute("data-id");
-        const voteRef = doc(db, "votes", candidateId);
-        const userRef = doc(db, "users", currentUser.email);
+        // Animation
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            this.style.transform = 'scale(1)';
+        }, 150);
 
-        try {
-            // Vérifier une dernière fois si l'utilisateur a déjà voté
-            const userSnap = await getDoc(userRef);
-            if (userSnap.exists() && userSnap.data().hasVoted) {
-                showAlert("Vous avez déjà voté !", "error");
-                return;
-            }
+        // Enregistrer le vote
+        const voteSnap = await getDoc(voteRef);
+        const currentCount = voteSnap.exists() ? voteSnap.data().count : 0;
+        await setDoc(voteRef, { count: currentCount + 1 });
 
-            // Animation de confirmation
-            card.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                card.style.transform = 'scale(1)';
-            }, 150);
+        await setDoc(userRef, {
+            hasVoted: true,
+            votedFor: candidateId,
+            votedAt: new Date(),
+            email: currentUser.email,
+            classLevel: currentUser.classLevel
+        });
 
-            // Enregistrer le vote
-            const voteSnap = await getDoc(voteRef);
-            const currentCount = voteSnap.exists() ? voteSnap.data().count : 0;
-            await setDoc(voteRef, { count: currentCount + 1 });
+        // Désactiver toutes les cartes
+        document.querySelectorAll('.candidate-card').forEach(c => {
+            c.style.opacity = '0.6';
+            c.style.cursor = 'not-allowed';
+            c.classList.remove('card-hover');
+        });
 
-            // Marquer l'utilisateur comme ayant voté
-            await setDoc(userRef, {
-                hasVoted: true,
-                votedFor: candidateId,
-                votedAt: new Date(),
-                email: currentUser.email,
-                classLevel: currentUser.classLevel
-            });
+        // Afficher confirmation
+        voteSection.classList.add("hidden");
+        userInfoSection.classList.add("hidden");
+        afterVoteSection.classList.remove("hidden");
 
-            // Afficher la section "après vote"
-            voteSection.classList.add("hidden");
-            userInfoSection.classList.add("hidden");
-            afterVoteSection.classList.remove("hidden");
+        showAlert("✅ Vote enregistré avec succès !", "success");
 
-            showAlert("✅ Vote enregistré avec succès ! Merci pour votre participation.", "success");
+    } catch (error) {
+        console.error("Erreur:", error);
+        showAlert("❌ Erreur lors du vote. Veuillez réessayer.", "error");
+    }
+}
 
-        } catch (error) {
-            console.error("Erreur lors du vote:", error);
-            showAlert("❌ Erreur lors de l'enregistrement du vote. Veuillez réessayer.", "error");
-        }
-    });
-});
-
-// 💫 Fonction d'alerte personnalisée
+// 💫 Fonctions utilitaires
 function showAlert(message, type = 'info') {
     const alertDiv = document.createElement('div');
     alertDiv.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 max-w-sm ${type === 'error' ? 'bg-red-500 text-white' :
-        type === 'success' ? 'bg-green-500 text-white' :
-            'bg-blue-500 text-white'
-        } fade-in`;
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-blue-500 text-white'} fade-in`;
     alertDiv.innerHTML = `
         <div class="flex items-center">
             <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : 'info-circle'} mr-2"></i>
@@ -290,29 +285,18 @@ function showAlert(message, type = 'info') {
     `;
 
     document.body.appendChild(alertDiv);
-
-    setTimeout(() => {
-        alertDiv.classList.add('fade-out');
-        setTimeout(() => {
-            if (alertDiv.parentNode) {
-                alertDiv.parentNode.removeChild(alertDiv);
-            }
-        }, 500);
-    }, 4000);
+    setTimeout(() => alertDiv.remove(), 4000);
 }
 
-// ✅ Validation d'email simple
 function isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// 💾 Sauvegarde dans localStorage
 function saveUserToLocalStorage(user) {
     localStorage.setItem('currentVotingUser', JSON.stringify(user));
 }
 
-// 🔍 Vérification au chargement de la page
+// 🔍 Vérification au chargement
 window.addEventListener('load', () => {
     const savedUser = localStorage.getItem('currentVotingUser');
     if (savedUser) {
@@ -323,9 +307,9 @@ window.addEventListener('load', () => {
             localStorage.removeItem('currentVotingUser');
         }
     }
+    setupVoteHandlers();
 });
 
-// 🔍 Vérifier le statut de vote de l'utilisateur
 async function checkUserVoteStatus() {
     if (!currentUser) return;
 
@@ -334,14 +318,11 @@ async function checkUserVoteStatus() {
         const userSnap = await getDoc(userRef);
 
         if (userSnap.exists() && userSnap.data().hasVoted) {
-            // L'utilisateur a déjà voté
             registerSection.classList.add("hidden");
             afterVoteSection.classList.remove("hidden");
-            showAlert("Vous avez déjà voté. Merci pour votre participation !", "info");
             return;
         }
 
-        // Afficher l'interface de vote
         registerSection.classList.add("hidden");
         userInfoSection.classList.remove("hidden");
         voteSection.classList.remove("hidden");
@@ -349,8 +330,8 @@ async function checkUserVoteStatus() {
         currentUserClass.textContent = currentUser.classLevel;
 
     } catch (error) {
-        console.error("Erreur vérification statut:", error);
+        console.error("Erreur vérification:", error);
     }
 }
 
-console.log("Application de vote initialisée - Mode résultats publics + inscription email");
+console.log("Application de vote initialisée - Version mobile corrigée");

@@ -80,6 +80,36 @@
             transform: scale(1.1);
             background: rgba(255, 255, 255, 0.2);
         }
+
+
+        @media (max-width: 768px) {
+            .grid-cols-3 {
+                grid-template-columns: 1fr !important;
+                gap: 1rem;
+            }
+
+            .max-w-4xl {
+                margin: 0.5rem;
+            }
+
+            .p-6 {
+                padding: 1rem;
+            }
+
+            .text-3xl {
+                font-size: 1.5rem;
+            }
+
+            .text-2xl {
+                font-size: 1.25rem;
+            }
+
+            /* Amélioration du touch sur mobile */
+            .candidate-card {
+                min-height: 120px;
+                -webkit-tap-highlight-color: transparent;
+            }
+        }
     </style>
 </head>
 
@@ -95,7 +125,7 @@
         <!-- Carte principale -->
         <div class="bg-white/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden fade-in">
             <!-- En-tête -->
-            <div class="bg-gradient-to-r from-purple-600 to-indigo-700 text-white p-6 text-center relative">
+            <div class="bg-gradient-to-r from-blue-200 to-indigo-700 text-white p-6 text-center relative">
                 <div class="flex justify-center items-center mb-3">
                     <i class="fas fa-vote-yea text-3xl mr-2"></i>
                     <h1 class="text-3xl font-bold">Vote en ligne</h1>
