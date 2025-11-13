@@ -2,33 +2,26 @@
     "version": 2,
     "builds": [
         {
-            "src": "public/**/*.html",
+            "src": "*.html",
             "use": "@vercel/static"
         },
         {
-            "src": "public/**/*.js",
+            "src": "*.js",
             "use": "@vercel/static"
         }
     ],
     "routes": [
         {
-            "src": "/(.*)",
-            "dest": "/public/$1"
-        }
-    ],
-    "headers": [
+            "src": "/",
+            "dest": "/index.html"
+        },
         {
-            "source": "/(.*)",
-            "headers": [
-                {
-                    "key": "X-Frame-Options",
-                    "value": "DENY"
-                },
-                {
-                    "key": "X-Content-Type-Options",
-                    "value": "nosniff"
-                }
-            ]
+            "src": "/admin",
+            "dest": "/admin.html"
+        },
+        {
+            "src": "/(.*\\.js)",
+            "dest": "/$1"
         }
     ]
 }
