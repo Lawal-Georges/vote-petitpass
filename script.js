@@ -184,36 +184,48 @@ logoutBtn.addEventListener("click", () => {
 
 // 🗳️ Gestion du vote - Version Mobile Compatible
 function setupVoteHandlers() {
+    // Nettoyer les anciens événements
     candidateCards.forEach((card) => {
-        // Supprimer les anciens écouteurs
         card.replaceWith(card.cloneNode(true));
     });
 
-    // Resélectionner après clonage
+    // Re-sélectionner les cartes après clonage
     const newCandidateCards = document.querySelectorAll(".candidate-card");
 
     newCandidateCards.forEach((card) => {
-        // Événement pour desktop
-        card.addEventListener("click", handleVote);
+        // 🎯 Sélectionne uniquement l'icône circulaire
+        const iconZone = card.querySelector(".w-10.h-10");
 
-        // Événements pour mobile
-        card.addEventListener("touchstart", function (e) {
-            if (isMobile()) {
-                this.style.transform = 'scale(0.95)';
-                this.style.opacity = '0.8';
-            }
-        });
+        if (iconZone) {
+            // Changer le curseur pour montrer que c’est cliquable
+            iconZone.style.cursor = "pointer";
 
-        card.addEventListener("touchend", function (e) {
-            if (isMobile()) {
-                e.preventDefault();
-                this.style.transform = 'scale(1)';
-                this.style.opacity = '1';
-                handleVote.call(this, e);
-            }
-        });
+            // ✅ Clique sur l’icône = vote
+            iconZone.addEventListener("click", (e) => {
+                e.stopPropagation(); // Empêche de cliquer ailleurs
+                handleVote.call(card, e);
+            });
+
+            // 📱 Support du toucher mobile
+            iconZone.addEventListener("touchstart", function () {
+                if (isMobile()) {
+                    this.style.transform = "scale(0.9)";
+                    this.style.opacity = "0.8";
+                }
+            });
+
+            iconZone.addEventListener("touchend", function (e) {
+                if (isMobile()) {
+                    e.preventDefault();
+                    this.style.transform = "scale(1)";
+                    this.style.opacity = "1";
+                    handleVote.call(card, e);
+                }
+            });
+        }
     });
 }
+
 
 // Fonction de vote centralisée
 async function handleVote(e) {
