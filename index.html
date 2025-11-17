@@ -391,6 +391,105 @@
                             <canvas id="voteChart" height="200"></canvas>
                         </div>
                     </div>
+
+
+                    <!-- Barres de progression des candidats -->
+                    <div class="bg-white rounded-2xl p-6 shadow-lg mb-8">
+                        <h3 class="text-xl font-bold text-gray-800 mb-6">🏆 Progression des candidats</h3>
+                        <div class="space-y-6">
+                            <!-- Candidat Noir -->
+                            <div class="candidate-progress">
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user-tie text-white text-sm"></i>
+                                        </div>
+                                        <span class="font-semibold text-gray-800">Candidat Noir</span>
+                                    </div>
+                                    <span class="text-sm font-bold text-gray-700" id="noir-percentage">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-4">
+                                    <div id="noir-progress" class="progress-bar h-4 rounded-full bg-gray-800"
+                                        style="width: 0%">
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center mt-1">
+                                    <span class="text-xs text-gray-500" id="noir-votes">0 votes</span>
+                                    <span class="text-xs text-gray-500">Élégance</span>
+                                </div>
+                            </div>
+
+                            <!-- Candidat Violet -->
+                            <div class="candidate-progress">
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="flex items-center space-x-3">
+                                        <div
+                                            class="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user-tie text-white text-sm"></i>
+                                        </div>
+                                        <span class="font-semibold text-gray-800">Candidat Violet</span>
+                                    </div>
+                                    <span class="text-sm font-bold text-gray-700" id="violet-percentage">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-4">
+                                    <div id="violet-progress" class="progress-bar h-4 rounded-full bg-purple-600"
+                                        style="width: 0%">
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center mt-1">
+                                    <span class="text-xs text-gray-500" id="violet-votes">0 votes</span>
+                                    <span class="text-xs text-gray-500">Innovation</span>
+                                </div>
+                            </div>
+
+                            <!-- Candidat Marron -->
+                            <div class="candidate-progress">
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-amber-700 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user-tie text-white text-sm"></i>
+                                        </div>
+                                        <span class="font-semibold text-gray-800">Candidat Marron</span>
+                                    </div>
+                                    <span class="text-sm font-bold text-gray-700" id="marron-percentage">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-4">
+                                    <div id="marron-progress" class="progress-bar h-4 rounded-full bg-amber-700"
+                                        style="width: 0%">
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center mt-1">
+                                    <span class="text-xs text-gray-500" id="marron-votes">0 votes</span>
+                                    <span class="text-xs text-gray-500">Tradition</span>
+                                </div>
+                            </div>
+
+                            <!-- Candidat Vert -->
+                            <div class="candidate-progress">
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user-tie text-white text-sm"></i>
+                                        </div>
+                                        <span class="font-semibold text-gray-800">Candidat Vert</span>
+                                    </div>
+                                    <span class="text-sm font-bold text-gray-700" id="vert-percentage">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-4">
+                                    <div id="vert-progress" class="progress-bar h-4 rounded-full bg-green-600"
+                                        style="width: 0%">
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center mt-1">
+                                    <span class="text-xs text-gray-500" id="vert-votes">0 votes</span>
+                                    <span class="text-xs text-gray-500">Écologie</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
                 </div>
 
                 <!-- Section inscription/vote -->

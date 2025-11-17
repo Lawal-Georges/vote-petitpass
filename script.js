@@ -113,12 +113,77 @@ function updateVoteCounts(votes) {
     }
 }
 
+// 📊 Mettre à jour les barres de progression
+function updateProgressBars(votes) {
+    try {
+        // Calculer le total des votes
+        const totalVotes = Object.values(votes).reduce((sum, count) => sum + (count || 0), 0);
+
+        // Fonction pour calculer le pourcentage avec gestion des divisions par zéro
+        const calculatePercentage = (voteCount) => {
+            if (totalVotes === 0) return 0;
+            const percentage = (voteCount / totalVotes) * 100;
+            return Math.round(percentage * 10) / 10; // Arrondir à 1 décimale
+        };
+
+        // Mettre à jour chaque candidat
+        const candidates = [
+            { id: 'noir', color: 'bg-gray-800' },
+            { id: 'violet', color: 'bg-purple-600' },
+            { id: 'marron', color: 'bg-amber-700' },
+            { id: 'vert', color: 'bg-green-600' }
+        ];
+
+        candidates.forEach(candidate => {
+            const voteCount = votes[candidate.id] || 0;
+            const percentage = calculatePercentage(voteCount);
+
+            // Mettre à jour le pourcentage
+            const percentageElement = document.getElementById(`${candidate.id}-percentage`);
+            if (percentageElement) {
+                percentageElement.textContent = `${percentage}%`;
+                percentageElement.style.color = percentage > 0 ? '#1f2937' : '#6b7280';
+            }
+
+            // Mettre à jour la barre de progression
+            const progressBar = document.getElementById(`${candidate.id}-progress`);
+            if (progressBar) {
+                progressBar.style.width = `${percentage}%`;
+                progressBar.classList.add(candidate.color);
+
+                // Animation fluide
+                progressBar.style.transition = 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+            }
+
+            // Mettre à jour le nombre de votes
+            const votesElement = document.getElementById(`${candidate.id}-votes`);
+            if (votesElement) {
+                votesElement.textContent = `${voteCount} vote${voteCount !== 1 ? 's' : ''}`;
+                votesElement.style.color = voteCount > 0 ? '#374151' : '#9ca3af';
+            }
+        });
+
+        // Mettre à jour le total des votes dans le titre si nécessaire
+        const progressTitle = document.querySelector('.bg-white.rounded-2xl h3');
+        if (progressTitle && totalVotes > 0) {
+            const originalText = progressTitle.textContent.includes('Progression') ? '🏆 Progression des candidats' : progressTitle.textContent;
+            progressTitle.innerHTML = `${originalText} <span class="text-sm font-normal text-gray-500">(${totalVotes} vote${totalVotes !== 1 ? 's' : ''} au total)</span>`;
+        }
+
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour des barres de progression:', error);
+    }
+}
+
 // 🔄 Écoute en temps réel des votes
 onSnapshot(collection(db, "votes"), (snapshot) => {
     let votes = { noir: 0, violet: 0, marron: 0, vert: 0 };
     snapshot.forEach((doc) => (votes[doc.id] = doc.data().count || 0));
+
+    // Mettre à jour tous les éléments
     initChart(votes);
     updateVoteCounts(votes);
+    updateProgressBars(votes);
 });
 
 // 👤 Gestion du formulaire d'inscription
@@ -361,6 +426,9 @@ window.addEventListener('load', () => {
         }
     }
     setupVoteHandlers();
+
+    // Initialiser les barres de progression à zéro
+    updateProgressBars({ noir: 0, violet: 0, marron: 0, vert: 0 });
 });
 
 async function checkUserVoteStatus() {
@@ -388,4 +456,4 @@ async function checkUserVoteStatus() {
     }
 }
 
-console.log("Application de vote initialisée - Version avec matricule et nom");
+console.log("Application de vote initialisée - Version avec barres de progression");
