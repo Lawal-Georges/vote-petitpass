@@ -18,6 +18,12 @@
         .stats-card {
             background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
             border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
         .btn-home {
@@ -43,162 +49,263 @@
                 transform: translateY(0);
             }
         }
+
+        /* Styles responsives améliorés */
+        .responsive-table {
+            font-size: 0.875rem;
+        }
+
+        .responsive-table th,
+        .responsive-table td {
+            padding: 0.75rem 0.5rem;
+        }
+
+        .mobile-stack {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-stack {
+                gap: 0.5rem;
+            }
+
+            .mobile-text-center {
+                text-align: center;
+            }
+
+            .mobile-p-4 {
+                padding: 1rem;
+            }
+
+            .mobile-p-3 {
+                padding: 0.75rem;
+            }
+
+            .mobile-text-lg {
+                font-size: 1.125rem;
+            }
+
+            .mobile-text-xl {
+                font-size: 1.25rem;
+            }
+
+            .mobile-hidden {
+                display: none;
+            }
+
+            .mobile-block {
+                display: block;
+            }
+
+            .mobile-w-full {
+                width: 100%;
+            }
+
+            .mobile-space-y-2>*+* {
+                margin-top: 0.5rem;
+            }
+
+            .mobile-flex-col {
+                flex-direction: column;
+            }
+
+            .mobile-justify-center {
+                justify-content: center;
+            }
+
+            .mobile-gap-2 {
+                gap: 0.5rem;
+            }
+
+            .mobile-gap-4 {
+                gap: 1rem;
+            }
+        }
+
+        /* Amélioration du touch sur mobile */
+        @media (max-width: 768px) {
+            .vote-control {
+                min-height: 44px;
+                min-width: 44px;
+            }
+
+            input[type="number"] {
+                font-size: 16px;
+                /* Empêche le zoom sur iOS */
+            }
+
+            button {
+                min-height: 44px;
+            }
+        }
     </style>
 </head>
 
-<body class="gradient-bg min-h-screen p-4">
+<body class="gradient-bg min-h-screen p-2 sm:p-4">
     <div class="max-w-7xl mx-auto">
         <!-- En-tête Admin -->
-        <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-6 text-white relative">
+        <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 text-white relative">
             <!-- Bouton Retour Accueil -->
             <a href="./index.html"
-                class="btn-home absolute left-6 top-6 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition flex items-center space-x-2"
+                class="btn-home absolute left-2 sm:left-6 top-2 sm:top-6 bg-white/20 hover:bg-white/30 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition flex items-center space-x-2 text-sm sm:text-base"
                 title="Retour à la page d'accueil">
                 <i class="fas fa-arrow-left"></i>
-                <span>Accueil</span>
+                <span class="mobile-hidden sm:inline">Accueil</span>
             </a>
 
-            <div class="text-center">
-                <h1 class="text-3xl font-bold">🔐 Panel Administrateur</h1>
-                <p class="text-blue-200">Gestion des votes - PetitPass</p>
+            <div class="text-center pt-10 sm:pt-0 mobile-p-3">
+                <h1 class="text-xl sm:text-2xl md:text-3xl font-bold mobile-text-center">🔐 Panel Administrateur</h1>
+                <p class="text-blue-200 text-sm sm:text-base mt-1 mobile-text-center">Gestion des votes - PetitPass</p>
             </div>
 
-            <div id="admin-user" class="hidden absolute right-6 top-6">
-                <p class="text-right" id="admin-email"></p>
-                <button id="admin-logout" class="text-sm bg-red-500 hover:bg-red-600 px-3 py-1 rounded-lg transition">
+            <div id="admin-user" class="hidden absolute right-2 sm:right-6 top-2 sm:top-6">
+                <p class="text-right text-xs sm:text-sm" id="admin-email"></p>
+                <button id="admin-logout"
+                    class="text-xs sm:text-sm bg-red-500 hover:bg-red-600 px-2 py-1 sm:px-3 sm:py-1 rounded-lg transition mobile-w-full mt-1">
                     Déconnexion
                 </button>
             </div>
         </div>
 
         <!-- Section de connexion admin -->
-        <div id="admin-login-section" class="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-auto">
+        <div id="admin-login-section"
+            class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 max-w-md mx-auto mobile-p-4">
             <!-- Bouton Retour Accueil pour la section login aussi -->
-            <div class="text-center mb-6">
+            <div class="text-center mb-4 sm:mb-6">
                 <a href="index.html"
-                    class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 mb-4 transition"
+                    class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 mb-3 sm:mb-4 transition text-sm sm:text-base"
                     title="Retour à l'accueil">
                     <i class="fas fa-arrow-left"></i>
                     <span>Retour à l'accueil</span>
                 </a>
-                <i class="fas fa-lock text-4xl text-purple-600 mb-4"></i>
-                <h2 class="text-2xl font-bold text-gray-800">Accès Administrateur</h2>
-                <p class="text-gray-600">Connectez-vous avec votre compte autorisé</p>
+                <i class="fas fa-lock text-3xl sm:text-4xl text-purple-600 mb-3 sm:mb-4"></i>
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mobile-text-center">Accès Administrateur</h2>
+                <p class="text-gray-600 text-sm sm:text-base mobile-text-center">Connectez-vous avec votre compte
+                    autorisé</p>
             </div>
 
-            <div class="space-y-4">
+            <div class="space-y-3 sm:space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Email administrateur</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Email administrateur</label>
                     <input type="email" id="admin-email-input"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        class="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base"
                         placeholder="votre@email.com">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Mot de passe</label>
                     <input type="password" id="admin-password-input"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        class="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base"
                         placeholder="••••••••">
                 </div>
                 <button id="admin-login-btn"
-                    class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition font-semibold">
+                    class="w-full bg-purple-600 text-white py-2 sm:py-3 rounded-lg hover:bg-purple-700 transition font-semibold text-sm sm:text-base">
                     <i class="fas fa-sign-in-alt mr-2"></i>
                     Se connecter
                 </button>
             </div>
 
-            <div id="admin-error" class="hidden mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            <div id="admin-error"
+                class="hidden mt-3 sm:mt-4 p-2 sm:p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
             </div>
         </div>
 
         <!-- Panel de gestion (caché par défaut) -->
         <div id="admin-panel" class="hidden">
             <!-- Bouton Retour Accueil dans le panel -->
-            <div class="flex justify-between items-center mb-6">
+            <div
+                class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 mobile-gap-4">
                 <a href="index.html"
-                    class="btn-home bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition flex items-center space-x-2"
+                    class="btn-home bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition flex items-center space-x-2 text-sm sm:text-base mobile-w-full sm:mobile-w-auto mobile-justify-center mb-2 sm:mb-0"
                     title="Retour à la page d'accueil">
                     <i class="fas fa-arrow-left"></i>
                     <span>Retour à l'accueil</span>
                 </a>
 
-                <div id="admin-user-panel" class="hidden">
-                    <p class="text-right text-gray-600" id="admin-email-panel"></p>
+                <div id="admin-user-panel"
+                    class="hidden mobile-w-full sm:mobile-w-auto mobile-text-center sm:mobile-text-right">
+                    <p class="text-gray-600 text-sm" id="admin-email-panel"></p>
                     <button id="admin-logout-panel"
-                        class="text-sm bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg transition">
+                        class="text-xs sm:text-sm bg-red-500 hover:bg-red-600 text-white px-2 py-1 sm:px-3 sm:py-1 rounded-lg transition mobile-w-full sm:mobile-w-auto mt-1">
                         Déconnexion Admin
                     </button>
                 </div>
             </div>
 
             <!-- Cartes de statistiques -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="stats-card border-gray-800 rounded-xl p-6 shadow-lg">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
+                <div class="stats-card border-gray-800 rounded-xl p-4 sm:p-6 shadow-lg">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm text-gray-600">Candidat Noir</p>
-                            <p id="noir-count" class="text-3xl font-bold text-gray-800">0</p>
+                            <p class="text-xs sm:text-sm text-gray-600">Candidat Noir</p>
+                            <p id="noir-count" class="text-2xl sm:text-3xl font-bold text-gray-800">0</p>
                         </div>
-                        <i class="fas fa-user-tie text-2xl text-gray-600"></i>
+                        <i class="fas fa-user-tie text-xl sm:text-2xl text-gray-600"></i>
                     </div>
                 </div>
 
-                <div class="stats-card border-purple-500 rounded-xl p-6 shadow-lg">
+                <div class="stats-card border-purple-500 rounded-xl p-4 sm:p-6 shadow-lg">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm text-gray-600">Candidat Violet</p>
-                            <p id="violet-count" class="text-3xl font-bold text-purple-600">0</p>
+                            <p class="text-xs sm:text-sm text-gray-600">Candidat Violet</p>
+                            <p id="violet-count" class="text-2xl sm:text-3xl font-bold text-purple-600">0</p>
                         </div>
-                        <i class="fas fa-user-tie text-2xl text-purple-500"></i>
+                        <i class="fas fa-user-tie text-xl sm:text-2xl text-purple-500"></i>
                     </div>
                 </div>
 
-                <div class="stats-card border-amber-700 rounded-xl p-6 shadow-lg">
+                <div class="stats-card border-amber-700 rounded-xl p-4 sm:p-6 shadow-lg">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm text-gray-600">Candidat Marron</p>
-                            <p id="marron-count" class="text-3xl font-bold text-amber-700">0</p>
+                            <p class="text-xs sm:text-sm text-gray-600">Candidat Marron</p>
+                            <p id="marron-count" class="text-2xl sm:text-3xl font-bold text-amber-700">0</p>
                         </div>
-                        <i class="fas fa-user-tie text-2xl text-amber-600"></i>
+                        <i class="fas fa-user-tie text-xl sm:text-2xl text-amber-600"></i>
                     </div>
                 </div>
 
-                <div class="stats-card border-green-500 rounded-xl p-6 shadow-lg">
+                <div class="stats-card border-green-500 rounded-xl p-4 sm:p-6 shadow-lg">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-sm text-gray-600">Candidat Vert</p>
-                            <p id="vert-count" class="text-3xl font-bold text-green-600">0</p>
+                            <p class="text-xs sm:text-sm text-gray-600">Candidat Vert</p>
+                            <p id="vert-count" class="text-2xl sm:text-3xl font-bold text-green-600">0</p>
                         </div>
-                        <i class="fas fa-user-tie text-2xl text-green-500"></i>
+                        <i class="fas fa-user-tie text-xl sm:text-2xl text-green-500"></i>
                     </div>
                 </div>
             </div>
 
             <!-- Graphique et contrôles -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
                 <!-- Graphique -->
-                <div class="lg:col-span-2 bg-white rounded-2xl p-6 shadow-lg">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">📊 Évolution des votes</h3>
-                    <canvas id="admin-chart" height="300"></canvas>
+                <div class="xl:col-span-2 bg-white rounded-2xl p-4 sm:p-6 shadow-lg">
+                    <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 mobile-text-center">📊 Évolution
+                        des votes</h3>
+                    <div class="h-64 sm:h-80">
+                        <canvas id="admin-chart"></canvas>
+                    </div>
                 </div>
 
                 <!-- Contrôles des votes -->
-                <div class="bg-white rounded-2xl p-6 shadow-lg">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">🎛️ Contrôles des votes</h3>
+                <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-lg">
+                    <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 mobile-text-center">🎛️ Contrôles
+                        des votes</h3>
 
-                    <div class="space-y-4">
+                    <div class="space-y-3 sm:space-y-4">
                         <!-- Noir -->
-                        <div class="border-l-4 border-gray-800 pl-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Candidat Noir</label>
-                            <div class="flex gap-2">
+                        <div class="border-l-4 border-gray-800 pl-3 sm:pl-4">
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Candidat
+                                Noir</label>
+                            <div class="flex gap-1 sm:gap-2 mobile-justify-center">
                                 <button title="button"
-                                    class="vote-control bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg transition"
+                                    class="vote-control bg-red-500 hover:bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm"
                                     data-candidate="noir" data-action="decrease">
                                     <i class="fas fa-minus"></i>
                                 </button>
                                 <input title="input" type="number" id="noir-input" value="0"
-                                    class="flex-1 text-center border border-gray-300 rounded-lg px-3 py-2">
+                                    class="flex-1 text-center border border-gray-300 rounded-lg px-2 py-2 sm:px-3 sm:py-2 text-sm sm:text-base min-w-0">
                                 <button title="button"
-                                    class="vote-control bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition"
+                                    class="vote-control bg-green-500 hover:bg-green-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm"
                                     data-candidate="noir" data-action="increase">
                                     <i class="fas fa-plus"></i>
                                 </button>
@@ -206,18 +313,19 @@
                         </div>
 
                         <!-- Violet -->
-                        <div class="border-l-4 border-purple-500 pl-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Candidat Violet</label>
-                            <div class="flex gap-2">
+                        <div class="border-l-4 border-purple-500 pl-3 sm:pl-4">
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Candidat
+                                Violet</label>
+                            <div class="flex gap-1 sm:gap-2 mobile-justify-center">
                                 <button title="button"
-                                    class="vote-control bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg transition"
+                                    class="vote-control bg-red-500 hover:bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm"
                                     data-candidate="violet" data-action="decrease">
                                     <i class="fas fa-minus"></i>
                                 </button>
                                 <input title="input" type="number" id="violet-input" value="0"
-                                    class="flex-1 text-center border border-gray-300 rounded-lg px-3 py-2">
+                                    class="flex-1 text-center border border-gray-300 rounded-lg px-2 py-2 sm:px-3 sm:py-2 text-sm sm:text-base min-w-0">
                                 <button title="button"
-                                    class="vote-control bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition"
+                                    class="vote-control bg-green-500 hover:bg-green-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm"
                                     data-candidate="violet" data-action="increase">
                                     <i class="fas fa-plus"></i>
                                 </button>
@@ -225,18 +333,19 @@
                         </div>
 
                         <!-- Marron -->
-                        <div class="border-l-4 border-amber-700 pl-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Candidat Marron</label>
-                            <div class="flex gap-2">
+                        <div class="border-l-4 border-amber-700 pl-3 sm:pl-4">
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Candidat
+                                Marron</label>
+                            <div class="flex gap-1 sm:gap-2 mobile-justify-center">
                                 <button title="button"
-                                    class="vote-control bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg transition"
+                                    class="vote-control bg-red-500 hover:bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm"
                                     data-candidate="marron" data-action="decrease">
                                     <i class="fas fa-minus"></i>
                                 </button>
                                 <input title="input" type="number" id="marron-input" value="0"
-                                    class="flex-1 text-center border border-gray-300 rounded-lg px-3 py-2">
+                                    class="flex-1 text-center border border-gray-300 rounded-lg px-2 py-2 sm:px-3 sm:py-2 text-sm sm:text-base min-w-0">
                                 <button title="button"
-                                    class="vote-control bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition"
+                                    class="vote-control bg-green-500 hover:bg-green-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm"
                                     data-candidate="marron" data-action="increase">
                                     <i class="fas fa-plus"></i>
                                 </button>
@@ -244,18 +353,19 @@
                         </div>
 
                         <!-- Vert -->
-                        <div class="border-l-4 border-green-500 pl-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Candidat Vert</label>
-                            <div class="flex gap-2">
+                        <div class="border-l-4 border-green-500 pl-3 sm:pl-4">
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">Candidat
+                                Vert</label>
+                            <div class="flex gap-1 sm:gap-2 mobile-justify-center">
                                 <button title="button"
-                                    class="vote-control bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg transition"
+                                    class="vote-control bg-red-500 hover:bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm"
                                     data-candidate="vert" data-action="decrease">
                                     <i class="fas fa-minus"></i>
                                 </button>
                                 <input title="input" type="number" id="vert-input" value="0"
-                                    class="flex-1 text-center border border-gray-300 rounded-lg px-3 py-2">
+                                    class="flex-1 text-center border border-gray-300 rounded-lg px-2 py-2 sm:px-3 sm:py-2 text-sm sm:text-base min-w-0">
                                 <button title="button"
-                                    class="vote-control bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition"
+                                    class="vote-control bg-green-500 hover:bg-green-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm"
                                     data-candidate="vert" data-action="increase">
                                     <i class="fas fa-plus"></i>
                                 </button>
@@ -263,14 +373,14 @@
                         </div>
 
                         <!-- Boutons d'action -->
-                        <div class="pt-4 border-t">
+                        <div class="pt-3 sm:pt-4 border-t">
                             <button id="save-votes"
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition font-semibold">
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 sm:py-3 rounded-lg transition font-semibold text-sm sm:text-base">
                                 <i class="fas fa-save mr-2"></i>
-                                Sauvegarder les modifications
+                                Sauvegarder
                             </button>
                             <button id="reset-all"
-                                class="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg transition font-semibold mt-2">
+                                class="w-full bg-red-600 hover:bg-red-700 text-white py-2 sm:py-3 rounded-lg transition font-semibold text-sm sm:text-base mt-2">
                                 <i class="fas fa-trash mr-2"></i>
                                 Réinitialiser tous les votes
                             </button>
@@ -280,29 +390,78 @@
             </div>
 
             <!-- Liste des utilisateurs ayant voté -->
-            <div class="bg-white rounded-2xl p-6 shadow-lg">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">👥 Utilisateurs ayant voté</h3>
+            <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-lg">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 mobile-text-center">👥 Utilisateurs
+                    ayant voté</h3>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left text-gray-700">
+                    <table class="w-full text-xs sm:text-sm text-left text-gray-700 responsive-table">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3">Matricule</th>
-                                <th class="px-4 py-3">Nom</th>
-                                <th class="px-4 py-3">Email</th>
-                                <th class="px-4 py-3">Classe</th>
-                                <th class="px-4 py-3">Candidat</th>
-                                <th class="px-4 py-3">Date</th>
-                                <th class="px-4 py-3">Actions</th>
+                                <th class="px-2 py-2 sm:px-4 sm:py-3">Matricule</th>
+                                <th class="px-2 py-2 sm:px-4 sm:py-3 mobile-hidden sm:table-cell">Nom</th>
+                                <th class="px-2 py-2 sm:px-4 sm:py-3 mobile-hidden lg:table-cell">Email</th>
+                                <th class="px-2 py-2 sm:px-4 sm:py-3">Classe</th>
+                                <th class="px-2 py-2 sm:px-4 sm:py-3">Candidat</th>
+                                <th class="px-2 py-2 sm:px-4 sm:py-3 mobile-hidden md:table-cell">Date</th>
+                                <th class="px-2 py-2 sm:px-4 sm:py-3">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="voters-list">
                             <!-- Les utilisateurs seront ajoutés ici dynamiquement -->
+                            <tr>
+                                <td colspan="7" class="px-4 py-6 text-center text-gray-500 text-sm">
+                                    <i class="fas fa-users text-2xl mb-2 text-gray-300"></i>
+                                    <p>Chargement des données...</p>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Informations de pagination pour mobile -->
+                <div class="mt-4 p-3 bg-blue-50 rounded-lg mobile-block sm:hidden">
+                    <p class="text-xs text-blue-700 text-center">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        Faites défiler horizontalement pour voir toutes les colonnes
+                    </p>
+                </div>
             </div>
         </div>
+
+        <!-- Pied de page responsive -->
+        <div class="text-center mt-6 text-white/70 text-xs sm:text-sm">
+            <p>Panel Administrateur - Vote PetitPass</p>
+            <p class="mt-1">Optimisé pour tous les appareils</p>
+        </div>
     </div>
+
+    <script>
+        // Détection mobile et amélioration de l'UX
+        function isMobile() {
+            return window.innerWidth <= 768;
+        }
+
+        // Ajustement automatique pour mobile
+        function adjustForMobile() {
+            if (isMobile()) {
+                document.body.classList.add('mobile-mode');
+                // Réduire la hauteur du graphique sur mobile
+                const chartCanvas = document.getElementById('admin-chart');
+                if (chartCanvas) {
+                    chartCanvas.style.maxHeight = '250px';
+                }
+            } else {
+                document.body.classList.remove('mobile-mode');
+            }
+        }
+
+        // Écouter le redimensionnement
+        window.addEventListener('resize', adjustForMobile);
+        document.addEventListener('DOMContentLoaded', adjustForMobile);
+
+        // Amélioration du touch sur mobile
+        document.addEventListener('touchstart', function () { }, { passive: true });
+    </script>
 </body>
 
 </html>
