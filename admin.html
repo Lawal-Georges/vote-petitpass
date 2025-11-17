@@ -52,12 +52,13 @@
 
         /* Styles responsives améliorés */
         .responsive-table {
-            font-size: 0.875rem;
+            font-size: 0.75rem;
         }
 
-        .responsive-table th,
-        .responsive-table td {
-            padding: 0.75rem 0.5rem;
+        @media (min-width: 640px) {
+            .responsive-table {
+                font-size: 0.875rem;
+            }
         }
 
         .mobile-stack {
@@ -65,6 +66,26 @@
             flex-direction: column;
         }
 
+        /* Cache certains éléments sur mobile */
+        .mobile-hidden {
+            display: none;
+        }
+
+        .mobile-block {
+            display: block;
+        }
+
+        @media (min-width: 640px) {
+            .mobile-hidden {
+                display: block;
+            }
+
+            .mobile-block {
+                display: none;
+            }
+        }
+
+        /* Disposition mobile */
         @media (max-width: 768px) {
             .mobile-stack {
                 gap: 0.5rem;
@@ -90,14 +111,6 @@
                 font-size: 1.25rem;
             }
 
-            .mobile-hidden {
-                display: none;
-            }
-
-            .mobile-block {
-                display: block;
-            }
-
             .mobile-w-full {
                 width: 100%;
             }
@@ -121,6 +134,10 @@
             .mobile-gap-4 {
                 gap: 1rem;
             }
+
+            .mobile-mb-4 {
+                margin-bottom: 1rem;
+            }
         }
 
         /* Amélioration du touch sur mobile */
@@ -138,6 +155,29 @@
             button {
                 min-height: 44px;
             }
+
+            .touch-target {
+                min-height: 44px;
+                min-width: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        /* Ajustements pour très petits écrans */
+        @media (max-width: 480px) {
+            .responsive-table {
+                font-size: 0.7rem;
+            }
+
+            .stats-card {
+                padding: 0.75rem;
+            }
+
+            .stats-card p.text-2xl {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -148,7 +188,7 @@
         <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-4 sm:p-6 mb-4 sm:mb-6 text-white relative">
             <!-- Bouton Retour Accueil -->
             <a href="./index.html"
-                class="btn-home absolute left-2 sm:left-6 top-2 sm:top-6 bg-white/20 hover:bg-white/30 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition flex items-center space-x-2 text-sm sm:text-base"
+                class="btn-home absolute left-2 sm:left-6 top-2 sm:top-6 bg-white/20 hover:bg-white/30 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition flex items-center space-x-2 text-sm sm:text-base touch-target"
                 title="Retour à la page d'accueil">
                 <i class="fas fa-arrow-left"></i>
                 <span class="mobile-hidden sm:inline">Accueil</span>
@@ -159,10 +199,11 @@
                 <p class="text-blue-200 text-sm sm:text-base mt-1 mobile-text-center">Gestion des votes - PetitPass</p>
             </div>
 
-            <div id="admin-user" class="hidden absolute right-2 sm:right-6 top-2 sm:top-6">
-                <p class="text-right text-xs sm:text-sm" id="admin-email"></p>
+            <div id="admin-user"
+                class="hidden absolute right-2 sm:right-6 top-2 sm:top-6 mobile-text-center sm:mobile-text-right">
+                <p class="text-right text-xs sm:text-sm mobile-text-center" id="admin-email"></p>
                 <button id="admin-logout"
-                    class="text-xs sm:text-sm bg-red-500 hover:bg-red-600 px-2 py-1 sm:px-3 sm:py-1 rounded-lg transition mobile-w-full mt-1">
+                    class="text-xs sm:text-sm bg-red-500 hover:bg-red-600 px-2 py-1 sm:px-3 sm:py-1 rounded-lg transition mobile-w-full sm:mobile-w-auto mt-1 touch-target">
                     Déconnexion
                 </button>
             </div>
@@ -174,7 +215,7 @@
             <!-- Bouton Retour Accueil pour la section login aussi -->
             <div class="text-center mb-4 sm:mb-6">
                 <a href="index.html"
-                    class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 mb-3 sm:mb-4 transition text-sm sm:text-base"
+                    class="inline-flex items-center space-x-2 text-purple-600 hover:text-purple-700 mb-3 sm:mb-4 transition text-sm sm:text-base touch-target"
                     title="Retour à l'accueil">
                     <i class="fas fa-arrow-left"></i>
                     <span>Retour à l'accueil</span>
@@ -189,17 +230,17 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Email administrateur</label>
                     <input type="email" id="admin-email-input"
-                        class="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base"
+                        class="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base touch-target"
                         placeholder="votre@email.com">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1 sm:mb-2">Mot de passe</label>
                     <input type="password" id="admin-password-input"
-                        class="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base"
+                        class="w-full px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm sm:text-base touch-target"
                         placeholder="••••••••">
                 </div>
                 <button id="admin-login-btn"
-                    class="w-full bg-purple-600 text-white py-2 sm:py-3 rounded-lg hover:bg-purple-700 transition font-semibold text-sm sm:text-base">
+                    class="w-full bg-purple-600 text-white py-2 sm:py-3 rounded-lg hover:bg-purple-700 transition font-semibold text-sm sm:text-base touch-target">
                     <i class="fas fa-sign-in-alt mr-2"></i>
                     Se connecter
                 </button>
@@ -214,9 +255,9 @@
         <div id="admin-panel" class="hidden">
             <!-- Bouton Retour Accueil dans le panel -->
             <div
-                class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 mobile-gap-4">
+                class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 mobile-gap-4 mobile-mb-4">
                 <a href="index.html"
-                    class="btn-home bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition flex items-center space-x-2 text-sm sm:text-base mobile-w-full sm:mobile-w-auto mobile-justify-center mb-2 sm:mb-0"
+                    class="btn-home bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition flex items-center space-x-2 text-sm sm:text-base mobile-w-full sm:mobile-w-auto mobile-justify-center mb-2 sm:mb-0 touch-target"
                     title="Retour à la page d'accueil">
                     <i class="fas fa-arrow-left"></i>
                     <span>Retour à l'accueil</span>
@@ -224,9 +265,9 @@
 
                 <div id="admin-user-panel"
                     class="hidden mobile-w-full sm:mobile-w-auto mobile-text-center sm:mobile-text-right">
-                    <p class="text-gray-600 text-sm" id="admin-email-panel"></p>
+                    <p class="text-gray-600 text-sm mobile-text-center sm:mobile-text-left" id="admin-email-panel"></p>
                     <button id="admin-logout-panel"
-                        class="text-xs sm:text-sm bg-red-500 hover:bg-red-600 text-white px-2 py-1 sm:px-3 sm:py-1 rounded-lg transition mobile-w-full sm:mobile-w-auto mt-1">
+                        class="text-xs sm:text-sm bg-red-500 hover:bg-red-600 text-white px-2 py-1 sm:px-3 sm:py-1 rounded-lg transition mobile-w-full sm:mobile-w-auto mt-1 touch-target">
                         Déconnexion Admin
                     </button>
                 </div>
@@ -298,14 +339,15 @@
                                 Noir</label>
                             <div class="flex gap-1 sm:gap-2 mobile-justify-center">
                                 <button title="button"
-                                    class="vote-control bg-red-500 hover:bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm"
+                                    class="vote-control bg-red-500 hover:bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm touch-target"
                                     data-candidate="noir" data-action="decrease">
                                     <i class="fas fa-minus"></i>
                                 </button>
                                 <input title="input" type="number" id="noir-input" value="0"
-                                    class="flex-1 text-center border border-gray-300 rounded-lg px-2 py-2 sm:px-3 sm:py-2 text-sm sm:text-base min-w-0">
+                                    class="flex-1 text-center border border-gray-300 rounded-lg px-2 py-2 sm:px-3 sm:py-2 text-sm sm:text-base min-w-0 touch-target"
+                                    min="0">
                                 <button title="button"
-                                    class="vote-control bg-green-500 hover:bg-green-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm"
+                                    class="vote-control bg-green-500 hover:bg-green-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm touch-target"
                                     data-candidate="noir" data-action="increase">
                                     <i class="fas fa-plus"></i>
                                 </button>
@@ -318,14 +360,15 @@
                                 Violet</label>
                             <div class="flex gap-1 sm:gap-2 mobile-justify-center">
                                 <button title="button"
-                                    class="vote-control bg-red-500 hover:bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm"
+                                    class="vote-control bg-red-500 hover:bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm touch-target"
                                     data-candidate="violet" data-action="decrease">
                                     <i class="fas fa-minus"></i>
                                 </button>
                                 <input title="input" type="number" id="violet-input" value="0"
-                                    class="flex-1 text-center border border-gray-300 rounded-lg px-2 py-2 sm:px-3 sm:py-2 text-sm sm:text-base min-w-0">
+                                    class="flex-1 text-center border border-gray-300 rounded-lg px-2 py-2 sm:px-3 sm:py-2 text-sm sm:text-base min-w-0 touch-target"
+                                    min="0">
                                 <button title="button"
-                                    class="vote-control bg-green-500 hover:bg-green-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm"
+                                    class="vote-control bg-green-500 hover:bg-green-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm touch-target"
                                     data-candidate="violet" data-action="increase">
                                     <i class="fas fa-plus"></i>
                                 </button>
@@ -338,14 +381,15 @@
                                 Marron</label>
                             <div class="flex gap-1 sm:gap-2 mobile-justify-center">
                                 <button title="button"
-                                    class="vote-control bg-red-500 hover:bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm"
+                                    class="vote-control bg-red-500 hover:bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm touch-target"
                                     data-candidate="marron" data-action="decrease">
                                     <i class="fas fa-minus"></i>
                                 </button>
                                 <input title="input" type="number" id="marron-input" value="0"
-                                    class="flex-1 text-center border border-gray-300 rounded-lg px-2 py-2 sm:px-3 sm:py-2 text-sm sm:text-base min-w-0">
+                                    class="flex-1 text-center border border-gray-300 rounded-lg px-2 py-2 sm:px-3 sm:py-2 text-sm sm:text-base min-w-0 touch-target"
+                                    min="0">
                                 <button title="button"
-                                    class="vote-control bg-green-500 hover:bg-green-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm"
+                                    class="vote-control bg-green-500 hover:bg-green-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm touch-target"
                                     data-candidate="marron" data-action="increase">
                                     <i class="fas fa-plus"></i>
                                 </button>
@@ -358,14 +402,15 @@
                                 Vert</label>
                             <div class="flex gap-1 sm:gap-2 mobile-justify-center">
                                 <button title="button"
-                                    class="vote-control bg-red-500 hover:bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm"
+                                    class="vote-control bg-red-500 hover:bg-red-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm touch-target"
                                     data-candidate="vert" data-action="decrease">
                                     <i class="fas fa-minus"></i>
                                 </button>
                                 <input title="input" type="number" id="vert-input" value="0"
-                                    class="flex-1 text-center border border-gray-300 rounded-lg px-2 py-2 sm:px-3 sm:py-2 text-sm sm:text-base min-w-0">
+                                    class="flex-1 text-center border border-gray-300 rounded-lg px-2 py-2 sm:px-3 sm:py-2 text-sm sm:text-base min-w-0 touch-target"
+                                    min="0">
                                 <button title="button"
-                                    class="vote-control bg-green-500 hover:bg-green-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm"
+                                    class="vote-control bg-green-500 hover:bg-green-600 text-white px-2 py-2 sm:px-3 sm:py-2 rounded-lg transition text-sm touch-target"
                                     data-candidate="vert" data-action="increase">
                                     <i class="fas fa-plus"></i>
                                 </button>
@@ -375,12 +420,12 @@
                         <!-- Boutons d'action -->
                         <div class="pt-3 sm:pt-4 border-t">
                             <button id="save-votes"
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 sm:py-3 rounded-lg transition font-semibold text-sm sm:text-base">
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 sm:py-3 rounded-lg transition font-semibold text-sm sm:text-base touch-target">
                                 <i class="fas fa-save mr-2"></i>
                                 Sauvegarder
                             </button>
                             <button id="reset-all"
-                                class="w-full bg-red-600 hover:bg-red-700 text-white py-2 sm:py-3 rounded-lg transition font-semibold text-sm sm:text-base mt-2">
+                                class="w-full bg-red-600 hover:bg-red-700 text-white py-2 sm:py-3 rounded-lg transition font-semibold text-sm sm:text-base mt-2 touch-target">
                                 <i class="fas fa-trash mr-2"></i>
                                 Réinitialiser tous les votes
                             </button>
@@ -393,17 +438,20 @@
             <div class="bg-white rounded-2xl p-4 sm:p-6 shadow-lg">
                 <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4 mobile-text-center">👥 Utilisateurs
                     ayant voté</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs sm:text-sm text-left text-gray-700 responsive-table">
+                <div class="overflow-x-auto -mx-2 sm:mx-0">
+                    <table class="w-full text-xs sm:text-sm text-left text-gray-700 responsive-table min-w-full">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr>
-                                <th class="px-2 py-2 sm:px-4 sm:py-3">Matricule</th>
-                                <th class="px-2 py-2 sm:px-4 sm:py-3 mobile-hidden sm:table-cell">Nom</th>
-                                <th class="px-2 py-2 sm:px-4 sm:py-3 mobile-hidden lg:table-cell">Email</th>
-                                <th class="px-2 py-2 sm:px-4 sm:py-3">Classe</th>
-                                <th class="px-2 py-2 sm:px-4 sm:py-3">Candidat</th>
-                                <th class="px-2 py-2 sm:px-4 sm:py-3 mobile-hidden md:table-cell">Date</th>
-                                <th class="px-2 py-2 sm:px-4 sm:py-3">Actions</th>
+                                <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap">Matricule</th>
+                                <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap mobile-hidden sm:table-cell">Nom
+                                </th>
+                                <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap mobile-hidden lg:table-cell">
+                                    Email</th>
+                                <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap">Classe</th>
+                                <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap">Candidat</th>
+                                <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap mobile-hidden md:table-cell">Date
+                                </th>
+                                <th class="px-2 py-2 sm:px-4 sm:py-3 whitespace-nowrap">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="voters-list">
@@ -443,21 +491,62 @@
 
         // Ajustement automatique pour mobile
         function adjustForMobile() {
-            if (isMobile()) {
+            const isMobileView = isMobile();
+
+            if (isMobileView) {
                 document.body.classList.add('mobile-mode');
-                // Réduire la hauteur du graphique sur mobile
+                // Ajustements spécifiques mobile
                 const chartCanvas = document.getElementById('admin-chart');
                 if (chartCanvas) {
-                    chartCanvas.style.maxHeight = '250px';
+                    const parent = chartCanvas.parentElement;
+                    if (parent) {
+                        parent.style.height = '300px';
+                    }
                 }
             } else {
                 document.body.classList.remove('mobile-mode');
             }
         }
 
+        // Réappliquer les styles responsives après la connexion
+        function reapplyResponsiveStyles() {
+            adjustForMobile();
+
+            // Réinitialiser le graphique s'il existe
+            if (window.adminChart) {
+                setTimeout(() => {
+                    window.adminChart.resize();
+                }, 100);
+            }
+        }
+
         // Écouter le redimensionnement
-        window.addEventListener('resize', adjustForMobile);
-        document.addEventListener('DOMContentLoaded', adjustForMobile);
+        window.addEventListener('resize', function () {
+            adjustForMobile();
+            reapplyResponsiveStyles();
+        });
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function () {
+            adjustForMobile();
+
+            // Surveiller les changements de visibilité du panel admin
+            const observer = new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                        if (!mutation.target.classList.contains('hidden')) {
+                            // Le panel admin est visible, réappliquer les styles
+                            setTimeout(reapplyResponsiveStyles, 50);
+                        }
+                    }
+                });
+            });
+
+            const adminPanel = document.getElementById('admin-panel');
+            if (adminPanel) {
+                observer.observe(adminPanel, { attributes: true });
+            }
+        });
 
         // Amélioration du touch sur mobile
         document.addEventListener('touchstart', function () { }, { passive: true });

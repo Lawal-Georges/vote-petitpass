@@ -59,12 +59,92 @@ const adminLogoutPanel = document.getElementById('admin-logout-panel');
 let adminChart;
 let currentVotes = { noir: 0, violet: 0, marron: 0, vert: 0 };
 
+// ==================== FONCTIONS RESPONSIVES AJOUTÉES ====================
+
+// Détection mobile
+function isMobile() {
+    return window.innerWidth <= 768;
+}
+
+// Ajustement automatique pour mobile
+function adjustForMobile() {
+    const isMobileView = isMobile();
+
+    if (isMobileView) {
+        document.body.classList.add('mobile-mode');
+        // Ajustements spécifiques mobile
+        const chartCanvas = document.getElementById('admin-chart');
+        if (chartCanvas) {
+            const parent = chartCanvas.parentElement;
+            if (parent) {
+                parent.style.height = '300px';
+            }
+        }
+    } else {
+        document.body.classList.remove('mobile-mode');
+    }
+}
+
+// Fonction pour réappliquer les styles responsives après la connexion
+function reapplyResponsiveStyles() {
+    // Réinitialiser le graphique
+    if (adminChart) {
+        setTimeout(() => {
+            adminChart.resize();
+        }, 100);
+    }
+
+    // Forcer le recalcul des styles
+    setTimeout(() => {
+        adjustForMobile();
+
+        // Réappliquer les classes responsives sur les éléments dynamiques
+        const votersList = document.getElementById('voters-list');
+        if (votersList) {
+            const rows = votersList.querySelectorAll('tr');
+            rows.forEach(row => {
+                if (!row.classList.contains('fade-in')) {
+                    row.classList.add('fade-in');
+                }
+            });
+        }
+    }, 150);
+}
+
+// Initialisation des écouteurs responsives
+function initResponsiveListeners() {
+    // Écouter le redimensionnement
+    window.addEventListener('resize', function () {
+        adjustForMobile();
+        reapplyResponsiveStyles();
+    });
+
+    // Surveiller les changements de visibilité du panel admin
+    const observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                if (!mutation.target.classList.contains('hidden')) {
+                    // Le panel admin est visible, réappliquer les styles
+                    setTimeout(reapplyResponsiveStyles, 50);
+                }
+            }
+        });
+    });
+
+    const adminPanel = document.getElementById('admin-panel');
+    if (adminPanel) {
+        observer.observe(adminPanel, { attributes: true });
+    }
+}
+
+// ==================== FONCTIONS EXISTANTES MODIFIÉES ====================
+
 // Vérification des identifiants admin
 function isAdmin(email, password) {
     return ADMIN_EMAILS.includes(email.toLowerCase()) && password === ADMIN_PASSWORD;
 }
 
-// Connexion admin
+// Connexion admin - MODIFIÉE POUR INCLURE LE RESPONSIVE
 adminLoginBtn.addEventListener('click', async () => {
     const email = adminEmailInput.value;
     const password = adminPasswordInput.value;
@@ -90,6 +170,13 @@ adminLoginBtn.addEventListener('click', async () => {
 
         // Charger les données
         loadAdminData();
+
+        // Réappliquer les styles responsives après la connexion
+        setTimeout(() => {
+            reapplyResponsiveStyles();
+            // Forcer un redimensionnement
+            window.dispatchEvent(new Event('resize'));
+        }, 200);
 
     } catch (error) {
         showError('Erreur de connexion: ' + error.message);
@@ -125,7 +212,7 @@ function showError(message) {
     }, 5000);
 }
 
-// Charger les données admin
+// Charger les données admin - MODIFIÉE POUR LE RESPONSIVE
 function loadAdminData() {
     // Écouter les votes en temps réel
     onSnapshot(collection(db, "votes"), (snapshot) => {
@@ -134,6 +221,9 @@ function loadAdminData() {
         });
         updateAdminUI();
         initAdminChart();
+
+        // Réappliquer les styles après le chargement des données
+        setTimeout(reapplyResponsiveStyles, 100);
     });
 
     // Charger la liste des votants
@@ -156,10 +246,16 @@ function updateAdminUI() {
     document.getElementById('vert-input').value = currentVotes.vert;
 }
 
-// Initialiser le graphique admin
+// Initialiser le graphique admin - AMÉLIORÉE POUR LE RESPONSIVE
 function initAdminChart() {
     const ctx = document.getElementById('admin-chart').getContext('2d');
     if (adminChart) adminChart.destroy();
+
+    // Ajuster la hauteur du conteneur parent pour mobile
+    const chartContainer = document.getElementById('admin-chart').parentElement;
+    if (isMobile() && chartContainer) {
+        chartContainer.style.height = '300px';
+    }
 
     adminChart = new Chart(ctx, {
         type: 'bar',
@@ -186,13 +282,15 @@ function initAdminChart() {
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
+            maintainAspectRatio: true,
             plugins: {
                 legend: { display: false },
                 title: {
                     display: true,
                     text: 'Répartition des votes',
-                    font: { size: 16 }
+                    font: {
+                        size: isMobile() ? 14 : 16
+                    }
                 }
             },
             scales: {
@@ -201,10 +299,22 @@ function initAdminChart() {
                     ticks: {
                         stepSize: 1
                     }
+                },
+                x: {
+                    ticks: {
+                        font: {
+                            size: isMobile() ? 10 : 12
+                        }
+                    }
                 }
             }
         }
     });
+
+    // Redimensionner après création
+    setTimeout(() => {
+        adminChart.resize();
+    }, 50);
 }
 
 // Configurer les contrôles de votes
@@ -300,7 +410,7 @@ document.getElementById('reset-all').addEventListener('click', async () => {
     }
 });
 
-// Charger la liste des votants
+// Charger la liste des votants - AMÉLIORÉE POUR LE RESPONSIVE
 async function loadVotersList() {
     const votersList = document.getElementById('voters-list');
 
@@ -310,7 +420,7 @@ async function loadVotersList() {
         if (snapshot.empty) {
             votersList.innerHTML = `
                 <tr>
-                    <td colspan="7" class="px-4 py-8 text-center text-gray-500">
+                    <td colspan="7" class="px-4 py-8 text-center text-gray-500 text-sm">
                         <i class="fas fa-users text-3xl mb-2 text-gray-300"></i>
                         <p>Aucun utilisateur n'a voté pour le moment</p>
                     </td>
@@ -351,25 +461,26 @@ async function loadVotersList() {
                     candidateText = userData.votedFor || 'Inconnu';
             }
 
+            // Utiliser des classes responsives pour le tableau
             row.innerHTML = `
-                <td class="px-4 py-3 font-mono text-sm font-medium">${doc.id}</td>
-                <td class="px-4 py-3 font-medium">${userData.name || 'Non renseigné'}</td>
-                <td class="px-4 py-3 text-blue-600">${userData.email || 'Non renseigné'}</td>
-                <td class="px-4 py-3">
-                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                <td class="px-2 py-2 sm:px-4 sm:py-3 font-mono text-xs sm:text-sm font-medium whitespace-nowrap">${doc.id}</td>
+                <td class="px-2 py-2 sm:px-4 sm:py-3 font-medium text-xs sm:text-sm mobile-hidden sm:table-cell">${userData.name || 'Non renseigné'}</td>
+                <td class="px-2 py-2 sm:px-4 sm:py-3 text-blue-600 text-xs sm:text-sm mobile-hidden lg:table-cell">${userData.email || 'Non renseigné'}</td>
+                <td class="px-2 py-2 sm:px-4 sm:py-3">
+                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium whitespace-nowrap">
                         ${userData.classLevel || 'Non renseigné'}
                     </span>
                 </td>
-                <td class="px-4 py-3">
-                    <span class="px-3 py-1 rounded-full text-xs font-medium ${candidateClass}">
+                <td class="px-2 py-2 sm:px-4 sm:py-3">
+                    <span class="px-2 py-1 rounded-full text-xs font-medium ${candidateClass} whitespace-nowrap">
                         ${candidateText}
                     </span>
                 </td>
-                <td class="px-4 py-3 text-sm text-gray-600">${votedAt}</td>
-                <td class="px-4 py-3">
-                    <button class="delete-voter text-red-600 hover:text-red-800 transition-colors p-2 rounded-lg hover:bg-red-50" 
+                <td class="px-2 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm text-gray-600 mobile-hidden md:table-cell">${votedAt}</td>
+                <td class="px-2 py-2 sm:px-4 sm:py-3">
+                    <button class="delete-voter text-red-600 hover:text-red-800 transition-colors p-1 sm:p-2 rounded-lg hover:bg-red-50 touch-target" 
                             data-matricule="${doc.id}" data-email="${userData.email}" title="Supprimer ce vote">
-                        <i class="fas fa-trash"></i>
+                        <i class="fas fa-trash text-xs sm:text-sm"></i>
                     </button>
                 </td>
             `;
@@ -400,6 +511,9 @@ async function loadVotersList() {
                 }
             });
         });
+
+        // Réappliquer les styles après le chargement de la liste
+        setTimeout(reapplyResponsiveStyles, 50);
     });
 }
 
@@ -420,7 +534,7 @@ function showCustomAlert(message, type = 'info') {
     alertDiv.innerHTML = `
         <div class="flex items-center">
             <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : 'info-circle'} mr-2"></i>
-            <span>${message}</span>
+            <span class="text-sm">${message}</span>
         </div>
     `;
 
@@ -436,9 +550,20 @@ function showCustomAlert(message, type = 'info') {
     }, 4000);
 }
 
+// ==================== INITIALISATION ====================
+
 // Initialisation au chargement de la page
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Panel admin initialisé avec les couleurs: Noir, Violet, Marron, Vert');
+
+    // Initialiser les écouteurs responsives
+    initResponsiveListeners();
+
+    // Ajuster immédiatement pour la taille actuelle
+    adjustForMobile();
 });
 
-console.log('Panel admin initialisé avec bouton retour et 4 couleurs');
+// Amélioration du touch sur mobile
+document.addEventListener('touchstart', function () { }, { passive: true });
+
+console.log('Panel admin initialisé avec support responsive complet');
