@@ -323,15 +323,7 @@
 
                     <!-- Cartes des statistiques compactes -->
                     <div class="grid grid-cols-4 gap-4 mb-6">
-                        <div class="bg-gradient-to-br from-gray-800 to-gray-900 text-white p-4 rounded-xl text-center">
-                            <div
-                                class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
-                                <i class="fas fa-user-tie text-xl"></i>
-                            </div>
-                            <h3 class="text-lg font-bold mb-1">Noir</h3>
-                            <div class="vote-count text-2xl font-bold">0</div>
-                            <p class="text-gray-300 text-xs">votes</p>
-                        </div>
+
 
                         <div
                             class="bg-gradient-to-br from-purple-500 to-purple-700 text-white p-4 rounded-xl text-center">
@@ -353,6 +345,16 @@
                             <h3 class="text-lg font-bold mb-1">Marron</h3>
                             <div class="vote-count text-2xl font-bold">0</div>
                             <p class="text-amber-200 text-xs">votes</p>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-gray-800 to-gray-900 text-white p-4 rounded-xl text-center">
+                            <div
+                                class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                                <i class="fas fa-user-tie text-xl"></i>
+                            </div>
+                            <h3 class="text-lg font-bold mb-1">Noir</h3>
+                            <div class="vote-count text-2xl font-bold">0</div>
+                            <p class="text-gray-300 text-xs">votes</p>
                         </div>
 
                         <div
@@ -397,27 +399,7 @@
                     <div class="bg-white rounded-2xl p-6 shadow-lg mb-8">
                         <h3 class="text-xl font-bold text-gray-800 mb-6">🏆 Progression des candidats</h3>
                         <div class="space-y-6">
-                            <!-- Candidat Noir -->
-                            <div class="candidate-progress">
-                                <div class="flex justify-between items-center mb-2">
-                                    <div class="flex items-center space-x-3">
-                                        <div class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
-                                            <i class="fas fa-user-tie text-white text-sm"></i>
-                                        </div>
-                                        <span class="font-semibold text-gray-800">Candidat Noir</span>
-                                    </div>
-                                    <span class="text-sm font-bold text-gray-700" id="noir-percentage">0%</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-4">
-                                    <div id="noir-progress" class="progress-bar h-4 rounded-full bg-gray-800"
-                                        style="width: 0%">
-                                    </div>
-                                </div>
-                                <div class="flex justify-between items-center mt-1">
-                                    <span class="text-xs text-gray-500" id="noir-votes">0 votes</span>
-                                    <span class="text-xs text-gray-500">Élégance</span>
-                                </div>
-                            </div>
+
 
                             <!-- Candidat Violet -->
                             <div class="candidate-progress">
@@ -463,6 +445,30 @@
                                     <span class="text-xs text-gray-500">Tradition</span>
                                 </div>
                             </div>
+
+
+                            <!-- Candidat Noir -->
+                            <div class="candidate-progress">
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user-tie text-white text-sm"></i>
+                                        </div>
+                                        <span class="font-semibold text-gray-800">Candidat Noir</span>
+                                    </div>
+                                    <span class="text-sm font-bold text-gray-700" id="noir-percentage">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-4">
+                                    <div id="noir-progress" class="progress-bar h-4 rounded-full bg-gray-800"
+                                        style="width: 0%">
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center mt-1">
+                                    <span class="text-xs text-gray-500" id="noir-votes">0 votes</span>
+                                    <span class="text-xs text-gray-500">Élégance</span>
+                                </div>
+                            </div>
+
 
                             <!-- Candidat Vert -->
                             <div class="candidate-progress">
@@ -593,18 +599,7 @@
 
                         <!-- Cartes des candidats compactes -->
                         <div class="grid grid-cols-4 gap-3 mb-4">
-                            <div class="candidate-card card-hover bg-gradient-to-br from-gray-800 to-gray-900 text-white p-3 rounded-xl text-center cursor-pointer relative"
-                                data-id="noir">
-                                <div class="flex items-center justify-between mb-2">
-                                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                                        <i class="fas fa-user-tie text-lg"></i>
-                                    </div>
-                                    <i class="fas fa-mouse-pointer text-white/70 text-sm"></i>
-                                </div>
-                                <h3 class="text-sm font-bold mb-1">Noir</h3>
-                                <p class="text-gray-300 text-xs mb-1">Élégance</p>
-                                <div class="text-lg font-bold">Voter</div>
-                            </div>
+
 
                             <div class="candidate-card card-hover bg-gradient-to-br from-purple-500 to-purple-700 text-white p-3 rounded-xl text-center cursor-pointer relative"
                                 data-id="violet">
@@ -629,6 +624,19 @@
                                 </div>
                                 <h3 class="text-sm font-bold mb-1">Marron</h3>
                                 <p class="text-amber-100 text-xs mb-1">Tradition</p>
+                                <div class="text-lg font-bold">Voter</div>
+                            </div>
+
+                            <div class="candidate-card card-hover bg-gradient-to-br from-gray-800 to-gray-900 text-white p-3 rounded-xl text-center cursor-pointer relative"
+                                data-id="noir">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-user-tie text-lg"></i>
+                                    </div>
+                                    <i class="fas fa-mouse-pointer text-white/70 text-sm"></i>
+                                </div>
+                                <h3 class="text-sm font-bold mb-1">Noir</h3>
+                                <p class="text-gray-300 text-xs mb-1">Élégance</p>
                                 <div class="text-lg font-bold">Voter</div>
                             </div>
 

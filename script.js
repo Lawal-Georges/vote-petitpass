@@ -54,21 +54,23 @@ function initChart(votes) {
     chart = new Chart(ctx, {
         type: "bar",
         data: {
-            labels: ["Noir", "Violet", "Marron", "Vert"],
+            labels: ["Violet", "Marron", "Noir", "Vert"],
             datasets: [
                 {
                     label: "Nombre de votes",
-                    data: [votes.noir, votes.violet, votes.marron, votes.vert],
+                    data: [votes.violet, votes.marron, votes.noir, votes.vert],
                     backgroundColor: [
-                        "rgba(33, 33, 33, 0.8)",
+
                         "rgba(138, 43, 226, 0.8)",
                         "rgba(139, 69, 19, 0.8)",
+                        "rgba(33, 33, 33, 0.8)",
                         "rgba(34, 197, 94, 0.8)"
                     ],
                     borderColor: [
-                        "rgb(33, 33, 33)",
+
                         "rgb(138, 43, 226)",
                         "rgb(139, 69, 19)",
+                        "rgb(33, 33, 33)",
                         "rgb(34, 197, 94)"
                     ],
                     borderWidth: 2,
@@ -106,9 +108,10 @@ function updateVoteCounts(votes) {
     // Sélectionner les éléments par leur position dans le grid
     const voteCounts = document.querySelectorAll('.vote-count');
     if (voteCounts.length >= 4) {
-        voteCounts[0].textContent = votes.noir || 0;
-        voteCounts[1].textContent = votes.violet || 0;
-        voteCounts[2].textContent = votes.marron || 0;
+
+        voteCounts[0].textContent = votes.violet || 0;
+        voteCounts[1].textContent = votes.marron || 0;
+        voteCounts[2].textContent = votes.noir || 0;
         voteCounts[3].textContent = votes.vert || 0;
     }
 }
@@ -128,9 +131,10 @@ function updateProgressBars(votes) {
 
         // Mettre à jour chaque candidat
         const candidates = [
-            { id: 'noir', color: 'bg-gray-800' },
+
             { id: 'violet', color: 'bg-purple-600' },
             { id: 'marron', color: 'bg-amber-700' },
+            { id: 'noir', color: 'bg-gray-800' },
             { id: 'vert', color: 'bg-green-600' }
         ];
 
@@ -428,7 +432,7 @@ window.addEventListener('load', () => {
     setupVoteHandlers();
 
     // Initialiser les barres de progression à zéro
-    updateProgressBars({ noir: 0, violet: 0, marron: 0, vert: 0 });
+    updateProgressBars({ violet: 0, marron: 0, noir: 0, vert: 0 });
 });
 
 async function checkUserVoteStatus() {
