@@ -38,7 +38,8 @@ const userInfoSection = document.getElementById("user-info-section");
 const voteSection = document.getElementById("vote-section");
 const afterVoteSection = document.getElementById("after-vote-section");
 const logoutBtn = document.getElementById("logout-btn");
-const currentUserEmail = document.getElementById("current-user-email");
+const currentUserName = document.getElementById("current-user-name");
+const currentUserMatricule = document.getElementById("current-user-matricule");
 const currentUserClass = document.getElementById("current-user-class");
 const candidateCards = document.querySelectorAll(".candidate-card");
 
@@ -53,20 +54,22 @@ function initChart(votes) {
     chart = new Chart(ctx, {
         type: "bar",
         data: {
-            labels: ["Violet", "Marron", "Jaune"],
+            labels: ["Noir", "Violet", "Marron", "Vert"],
             datasets: [
                 {
                     label: "Nombre de votes",
-                    data: [votes.violet, votes.marron, votes.jaune],
+                    data: [votes.noir, votes.violet, votes.marron, votes.vert],
                     backgroundColor: [
+                        "rgba(33, 33, 33, 0.8)",
                         "rgba(138, 43, 226, 0.8)",
                         "rgba(139, 69, 19, 0.8)",
-                        "rgba(255, 215, 0, 0.8)"
+                        "rgba(34, 197, 94, 0.8)"
                     ],
                     borderColor: [
+                        "rgb(33, 33, 33)",
                         "rgb(138, 43, 226)",
                         "rgb(139, 69, 19)",
-                        "rgb(255, 215, 0)"
+                        "rgb(34, 197, 94)"
                     ],
                     borderWidth: 2,
                     borderRadius: 12,
@@ -102,16 +105,17 @@ function initChart(votes) {
 function updateVoteCounts(votes) {
     // Sélectionner les éléments par leur position dans le grid
     const voteCounts = document.querySelectorAll('.vote-count');
-    if (voteCounts.length >= 3) {
-        voteCounts[0].textContent = votes.violet || 0;
-        voteCounts[1].textContent = votes.marron || 0;
-        voteCounts[2].textContent = votes.jaune || 0;
+    if (voteCounts.length >= 4) {
+        voteCounts[0].textContent = votes.noir || 0;
+        voteCounts[1].textContent = votes.violet || 0;
+        voteCounts[2].textContent = votes.marron || 0;
+        voteCounts[3].textContent = votes.vert || 0;
     }
 }
 
 // 🔄 Écoute en temps réel des votes
 onSnapshot(collection(db, "votes"), (snapshot) => {
-    let votes = { violet: 0, marron: 0, jaune: 0 };
+    let votes = { noir: 0, violet: 0, marron: 0, vert: 0 };
     snapshot.forEach((doc) => (votes[doc.id] = doc.data().count || 0));
     initChart(votes);
     updateVoteCounts(votes);
@@ -121,10 +125,13 @@ onSnapshot(collection(db, "votes"), (snapshot) => {
 userForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    const userMatricule = document.getElementById("user-matricule").value.trim();
+    const userName = document.getElementById("user-name").value.trim();
     const userEmail = document.getElementById("user-email").value.trim().toLowerCase();
     const classLevel = document.getElementById("class-level").value;
 
-    if (!userEmail || !classLevel) {
+    // Validation des champs
+    if (!userMatricule || !userName || !userEmail || !classLevel) {
         showAlert("Veuillez remplir tous les champs", "error");
         return;
     }
@@ -134,16 +141,33 @@ userForm.addEventListener("submit", async (e) => {
         return;
     }
 
-    try {
-        const userRef = doc(db, "users", userEmail);
-        const userSnap = await getDoc(userRef);
+    if (!isValidMatricule(userMatricule)) {
+        showAlert("Le matricule doit contenir uniquement des lettres et chiffres", "error");
+        return;
+    }
 
-        if (userSnap.exists() && userSnap.data().hasVoted) {
+    try {
+        // Vérifier si le matricule a déjà voté
+        const matriculeRef = doc(db, "users", userMatricule);
+        const matriculeSnap = await getDoc(matriculeRef);
+
+        if (matriculeSnap.exists() && matriculeSnap.data().hasVoted) {
+            showAlert("Ce matricule a déjà voté !", "error");
+            return;
+        }
+
+        // Vérifier si l'email a déjà voté
+        const emailRef = doc(db, "users_by_email", userEmail);
+        const emailSnap = await getDoc(emailRef);
+
+        if (emailSnap.exists() && emailSnap.data().hasVoted) {
             showAlert("Cette adresse email a déjà voté !", "error");
             return;
         }
 
         currentUser = {
+            matricule: userMatricule,
+            name: userName,
             email: userEmail,
             classLevel: classLevel
         };
@@ -154,10 +178,11 @@ userForm.addEventListener("submit", async (e) => {
         userInfoSection.classList.remove("hidden");
         voteSection.classList.remove("hidden");
 
-        currentUserEmail.textContent = currentUser.email;
+        currentUserName.textContent = currentUser.name;
+        currentUserMatricule.textContent = currentUser.matricule;
         currentUserClass.textContent = classLevel;
 
-        showAlert(`Bienvenue ! Vous pouvez maintenant voter.`, "success");
+        showAlert(`Bienvenue ${userName} ! Vous pouvez maintenant voter.`, "success");
 
     } catch (error) {
         console.error("Erreur:", error);
@@ -197,10 +222,10 @@ function setupVoteHandlers() {
         const iconZone = card.querySelector(".w-10.h-10");
 
         if (iconZone) {
-            // Changer le curseur pour montrer que c’est cliquable
+            // Changer le curseur pour montrer que c'est cliquable
             iconZone.style.cursor = "pointer";
 
-            // ✅ Clique sur l’icône = vote
+            // ✅ Clique sur l'icône = vote
             iconZone.addEventListener("click", (e) => {
                 e.stopPropagation(); // Empêche de cliquer ailleurs
                 handleVote.call(card, e);
@@ -226,7 +251,6 @@ function setupVoteHandlers() {
     });
 }
 
-
 // Fonction de vote centralisée
 async function handleVote(e) {
     if (!currentUser) {
@@ -236,7 +260,8 @@ async function handleVote(e) {
 
     const candidateId = this.getAttribute("data-id");
     const voteRef = doc(db, "votes", candidateId);
-    const userRef = doc(db, "users", currentUser.email);
+    const userRef = doc(db, "users", currentUser.matricule);
+    const emailRef = doc(db, "users_by_email", currentUser.email);
 
     try {
         const userSnap = await getDoc(userRef);
@@ -256,12 +281,24 @@ async function handleVote(e) {
         const currentCount = voteSnap.exists() ? voteSnap.data().count : 0;
         await setDoc(voteRef, { count: currentCount + 1 });
 
+        // Enregistrer l'utilisateur avec le matricule comme ID
         await setDoc(userRef, {
             hasVoted: true,
             votedFor: candidateId,
             votedAt: new Date(),
+            matricule: currentUser.matricule,
+            name: currentUser.name,
             email: currentUser.email,
             classLevel: currentUser.classLevel
+        });
+
+        // Enregistrer également avec l'email comme référence
+        await setDoc(emailRef, {
+            hasVoted: true,
+            votedFor: candidateId,
+            votedAt: new Date(),
+            matricule: currentUser.matricule,
+            name: currentUser.name
         });
 
         // Désactiver toutes les cartes
@@ -304,6 +341,10 @@ function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+function isValidMatricule(matricule) {
+    return /^[a-zA-Z0-9]+$/.test(matricule);
+}
+
 function saveUserToLocalStorage(user) {
     localStorage.setItem('currentVotingUser', JSON.stringify(user));
 }
@@ -326,7 +367,7 @@ async function checkUserVoteStatus() {
     if (!currentUser) return;
 
     try {
-        const userRef = doc(db, "users", currentUser.email);
+        const userRef = doc(db, "users", currentUser.matricule);
         const userSnap = await getDoc(userRef);
 
         if (userSnap.exists() && userSnap.data().hasVoted) {
@@ -338,7 +379,8 @@ async function checkUserVoteStatus() {
         registerSection.classList.add("hidden");
         userInfoSection.classList.remove("hidden");
         voteSection.classList.remove("hidden");
-        currentUserEmail.textContent = currentUser.email;
+        currentUserName.textContent = currentUser.name;
+        currentUserMatricule.textContent = currentUser.matricule;
         currentUserClass.textContent = currentUser.classLevel;
 
     } catch (error) {
@@ -346,4 +388,4 @@ async function checkUserVoteStatus() {
     }
 }
 
-console.log("Application de vote initialisée - Version mobile corrigée");
+console.log("Application de vote initialisée - Version avec matricule et nom");

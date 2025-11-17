@@ -57,7 +57,7 @@ const adminEmailPanel = document.getElementById('admin-email-panel');
 const adminLogoutPanel = document.getElementById('admin-logout-panel');
 
 let adminChart;
-let currentVotes = { violet: 0, marron: 0, jaune: 0 };
+let currentVotes = { noir: 0, violet: 0, marron: 0, vert: 0 };
 
 // Vérification des identifiants admin
 function isAdmin(email, password) {
@@ -138,17 +138,22 @@ function loadAdminData() {
 
     // Charger la liste des votants
     loadVotersList();
+
+    // Configurer les contrôles de votes
+    setupVoteControls();
 }
 
 // Mettre à jour l'interface admin
 function updateAdminUI() {
+    document.getElementById('noir-count').textContent = currentVotes.noir;
     document.getElementById('violet-count').textContent = currentVotes.violet;
     document.getElementById('marron-count').textContent = currentVotes.marron;
-    document.getElementById('jaune-count').textContent = currentVotes.jaune;
+    document.getElementById('vert-count').textContent = currentVotes.vert;
 
+    document.getElementById('noir-input').value = currentVotes.noir;
     document.getElementById('violet-input').value = currentVotes.violet;
     document.getElementById('marron-input').value = currentVotes.marron;
-    document.getElementById('jaune-input').value = currentVotes.jaune;
+    document.getElementById('vert-input').value = currentVotes.vert;
 }
 
 // Initialiser le graphique admin
@@ -159,62 +164,96 @@ function initAdminChart() {
     adminChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Violet', 'Marron', 'Jaune'],
+            labels: ['Noir', 'Violet', 'Marron', 'Vert'],
             datasets: [{
                 label: 'Votes',
-                data: [currentVotes.violet, currentVotes.marron, currentVotes.jaune],
+                data: [currentVotes.noir, currentVotes.violet, currentVotes.marron, currentVotes.vert],
                 backgroundColor: [
+                    'rgba(33, 33, 33, 0.8)',
                     'rgba(138, 43, 226, 0.8)',
                     'rgba(139, 69, 19, 0.8)',
-                    'rgba(255, 215, 0, 0.8)'
+                    'rgba(34, 197, 94, 0.8)'
                 ],
                 borderColor: [
+                    'rgb(33, 33, 33)',
                     'rgb(138, 43, 226)',
                     'rgb(139, 69, 19)',
-                    'rgb(255, 215, 0)'
+                    'rgb(34, 197, 94)'
                 ],
-                borderWidth: 2
+                borderWidth: 2,
+                borderRadius: 8
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: { display: false },
-                title: { display: true, text: 'Répartition des votes' }
+                title: {
+                    display: true,
+                    text: 'Répartition des votes',
+                    font: { size: 16 }
+                }
             },
             scales: {
-                y: { beginAtZero: true }
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
             }
         }
     });
 }
 
-// Contrôles des votes
-document.querySelectorAll('.vote-control').forEach(button => {
-    button.addEventListener('click', (e) => {
-        const candidate = e.target.closest('button').dataset.candidate;
-        const action = e.target.closest('button').dataset.action;
-        const input = document.getElementById(`${candidate}-input`);
-        let value = parseInt(input.value);
+// Configurer les contrôles de votes
+function setupVoteControls() {
+    document.querySelectorAll('.vote-control').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const candidate = e.target.closest('button').dataset.candidate;
+            const action = e.target.closest('button').dataset.action;
+            const input = document.getElementById(`${candidate}-input`);
+            let value = parseInt(input.value);
 
-        if (action === 'increase') {
-            value++;
-        } else if (action === 'decrease' && value > 0) {
-            value--;
-        }
+            if (action === 'increase') {
+                value++;
+            } else if (action === 'decrease' && value > 0) {
+                value--;
+            }
 
-        input.value = value;
+            input.value = value;
+        });
     });
-});
+
+    // Écouter les changements manuels dans les inputs
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+        input.addEventListener('change', (e) => {
+            let value = parseInt(e.target.value);
+            if (value < 0) {
+                e.target.value = 0;
+            }
+        });
+    });
+}
 
 // Sauvegarder les modifications
 document.getElementById('save-votes').addEventListener('click', async () => {
     try {
         const newVotes = {
+            noir: parseInt(document.getElementById('noir-input').value),
             violet: parseInt(document.getElementById('violet-input').value),
             marron: parseInt(document.getElementById('marron-input').value),
-            jaune: parseInt(document.getElementById('jaune-input').value)
+            vert: parseInt(document.getElementById('vert-input').value)
         };
+
+        // Validation
+        for (const [candidate, count] of Object.entries(newVotes)) {
+            if (isNaN(count) || count < 0) {
+                showCustomAlert('Veuillez entrer des valeurs valides pour tous les candidats', 'error');
+                return;
+            }
+        }
 
         // Mettre à jour Firebase
         for (const [candidate, count] of Object.entries(newVotes)) {
@@ -222,9 +261,9 @@ document.getElementById('save-votes').addEventListener('click', async () => {
             await setDoc(voteRef, { count: count });
         }
 
-        alert('✅ Votes sauvegardés avec succès!');
+        showCustomAlert('✅ Votes sauvegardés avec succès!', 'success');
     } catch (error) {
-        alert('❌ Erreur lors de la sauvegarde: ' + error.message);
+        showCustomAlert('❌ Erreur lors de la sauvegarde: ' + error.message, 'error');
     }
 });
 
@@ -233,24 +272,30 @@ document.getElementById('reset-all').addEventListener('click', async () => {
     if (confirm('⚠️ Êtes-vous sûr de vouloir réinitialiser tous les votes ? Cette action est irréversible.')) {
         try {
             // Réinitialiser les votes
-            const candidates = ['violet', 'marron', 'jaune'];
+            const candidates = ['noir', 'violet', 'marron', 'vert'];
             for (const candidate of candidates) {
                 const voteRef = doc(db, "votes", candidate);
                 await setDoc(voteRef, { count: 0 });
             }
 
-            // Supprimer tous les utilisateurs ayant voté
+            // Supprimer tous les utilisateurs ayant voté (collection users)
             const usersSnapshot = await getDocs(collection(db, "users"));
             const deletePromises = [];
             usersSnapshot.forEach((userDoc) => {
                 deletePromises.push(deleteDoc(userDoc.ref));
             });
 
+            // Supprimer tous les utilisateurs ayant voté (collection users_by_email)
+            const usersByEmailSnapshot = await getDocs(collection(db, "users_by_email"));
+            usersByEmailSnapshot.forEach((userDoc) => {
+                deletePromises.push(deleteDoc(userDoc.ref));
+            });
+
             await Promise.all(deletePromises);
 
-            alert('✅ Tous les votes et utilisateurs ont été réinitialisés!');
+            showCustomAlert('✅ Tous les votes et utilisateurs ont été réinitialisés!', 'success');
         } catch (error) {
-            alert('❌ Erreur lors de la réinitialisation: ' + error.message);
+            showCustomAlert('❌ Erreur lors de la réinitialisation: ' + error.message, 'error');
         }
     }
 });
@@ -262,26 +307,68 @@ async function loadVotersList() {
     onSnapshot(collection(db, "users"), (snapshot) => {
         votersList.innerHTML = '';
 
+        if (snapshot.empty) {
+            votersList.innerHTML = `
+                <tr>
+                    <td colspan="7" class="px-4 py-8 text-center text-gray-500">
+                        <i class="fas fa-users text-3xl mb-2 text-gray-300"></i>
+                        <p>Aucun utilisateur n'a voté pour le moment</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
         snapshot.forEach((doc) => {
             const userData = doc.data();
             const row = document.createElement('tr');
-            row.className = 'border-b hover:bg-gray-50';
+            row.className = 'border-b hover:bg-gray-50 fade-in';
 
             const votedAt = userData.votedAt ? new Date(userData.votedAt.seconds * 1000).toLocaleString() : 'Inconnue';
 
+            // Déterminer la classe CSS en fonction du candidat
+            let candidateClass = '';
+            let candidateText = '';
+            switch (userData.votedFor) {
+                case 'noir':
+                    candidateClass = 'bg-gray-100 text-gray-800';
+                    candidateText = 'Noir';
+                    break;
+                case 'violet':
+                    candidateClass = 'bg-purple-100 text-purple-800';
+                    candidateText = 'Violet';
+                    break;
+                case 'marron':
+                    candidateClass = 'bg-amber-100 text-amber-800';
+                    candidateText = 'Marron';
+                    break;
+                case 'vert':
+                    candidateClass = 'bg-green-100 text-green-800';
+                    candidateText = 'Vert';
+                    break;
+                default:
+                    candidateClass = 'bg-gray-100 text-gray-800';
+                    candidateText = userData.votedFor || 'Inconnu';
+            }
+
             row.innerHTML = `
-                <td class="px-4 py-3 font-medium">${doc.id}</td>
+                <td class="px-4 py-3 font-mono text-sm font-medium">${doc.id}</td>
+                <td class="px-4 py-3 font-medium">${userData.name || 'Non renseigné'}</td>
+                <td class="px-4 py-3 text-blue-600">${userData.email || 'Non renseigné'}</td>
                 <td class="px-4 py-3">
-                    <span class="px-2 py-1 rounded-full text-xs font-medium 
-                        ${userData.votedFor === 'violet' ? 'bg-purple-100 text-purple-800' :
-                    userData.votedFor === 'marron' ? 'bg-amber-100 text-amber-800' :
-                        'bg-yellow-100 text-yellow-800'}">
-                        ${userData.votedFor}
+                    <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                        ${userData.classLevel || 'Non renseigné'}
                     </span>
                 </td>
-                <td class="px-4 py-3">${votedAt}</td>
                 <td class="px-4 py-3">
-                    <button class="delete-voter text-red-600 hover:text-red-800" data-email="${doc.id}">
+                    <span class="px-3 py-1 rounded-full text-xs font-medium ${candidateClass}">
+                        ${candidateText}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-600">${votedAt}</td>
+                <td class="px-4 py-3">
+                    <button class="delete-voter text-red-600 hover:text-red-800 transition-colors p-2 rounded-lg hover:bg-red-50" 
+                            data-matricule="${doc.id}" data-email="${userData.email}" title="Supprimer ce vote">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
@@ -293,9 +380,23 @@ async function loadVotersList() {
         // Ajouter les événements de suppression
         document.querySelectorAll('.delete-voter').forEach(button => {
             button.addEventListener('click', async (e) => {
+                const matricule = e.target.closest('button').dataset.matricule;
                 const email = e.target.closest('button').dataset.email;
-                if (confirm(`Supprimer le vote de ${email} ?`)) {
-                    await deleteDoc(doc(db, "users", email));
+
+                if (confirm(`Supprimer le vote de ${matricule} (${email}) ? Cette action est irréversible.`)) {
+                    try {
+                        // Supprimer de la collection users (par matricule)
+                        await deleteDoc(doc(db, "users", matricule));
+
+                        // Supprimer de la collection users_by_email (par email)
+                        if (email && email !== 'Non renseigné') {
+                            await deleteDoc(doc(db, "users_by_email", email));
+                        }
+
+                        showCustomAlert(`✅ Vote de ${matricule} supprimé avec succès!`, 'success');
+                    } catch (error) {
+                        showCustomAlert('❌ Erreur lors de la suppression: ' + error.message, 'error');
+                    }
                 }
             });
         });
@@ -335,4 +436,9 @@ function showCustomAlert(message, type = 'info') {
     }, 4000);
 }
 
-console.log('Panel admin initialisé avec bouton retour');
+// Initialisation au chargement de la page
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Panel admin initialisé avec les couleurs: Noir, Violet, Marron, Vert');
+});
+
+console.log('Panel admin initialisé avec bouton retour et 4 couleurs');

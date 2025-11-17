@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Statistiques - Vote PetitPass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="module" src="./stats.js"></script>
+
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #7e22ce 100%);
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .progress-bar {
+            transition: width 1s ease-in-out;
+        }
+
+        .candidate-badge {
+            transition: all 0.3s ease;
+        }
+
+        .candidate-badge:hover {
+            transform: scale(1.05);
+        }
+
+        .export-btn {
+            transition: all 0.3s ease;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body class="gradient-bg min-h-screen p-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- En-tête -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-6 text-white relative">
+            <!-- Boutons de navigation -->
+            <div class="flex flex-wrap gap-4 justify-between items-center">
+                <div class="flex flex-wrap gap-4">
+                    <a href="./index.html"
+                        class="btn-primary text-white px-6 py-3 rounded-lg transition flex items-center space-x-2">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Retour au vote</span>
+                    </a>
+                    <a href="./admin.html"
+                        class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg transition flex items-center space-x-2">
+                        <i class="fas fa-cog"></i>
+                        <span>Panel Admin</span>
+                    </a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button title="refresh-stats" id="refresh-stats"
+                        class="text-white hover:text-yellow-300 transition">
+                        <i class="fas fa-sync-alt text-xl"></i>
+                    </button>
+                    <button id="export-data"
+                        class="export-btn bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition flex items-center space-x-2">
+                        <i class="fas fa-download"></i>
+                        <span>Exporter</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center mt-6">
+                <h1 class="text-4xl font-bold">📊 Tableau de Bord des Statistiques</h1>
+                <p class="text-blue-200 text-lg mt-2">Vote PetitPass - Analyse détaillée des résultats</p>
+            </div>
+        </div>
+
+        <!-- Section des métriques globales -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+            <div class="stats-card border-blue-500 rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Total des votants</p>
+                        <p id="total-voters" class="text-3xl font-bold text-blue-600">0</p>
+                    </div>
+                    <i class="fas fa-users text-2xl text-blue-500"></i>
+                </div>
+                <div class="mt-2">
+                    <p class="text-xs text-gray-500">Participation globale</p>
+                </div>
+            </div>
+
+            <div class="stats-card border-green-500 rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Taux de participation</p>
+                        <p id="participation-rate" class="text-3xl font-bold text-green-600">0%</p>
+                    </div>
+                    <i class="fas fa-chart-line text-2xl text-green-500"></i>
+                </div>
+                <div class="mt-2">
+                    <p class="text-xs text-gray-500">Basé sur les inscrits</p>
+                </div>
+            </div>
+
+            <div class="stats-card border-purple-500 rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Candidat en tête</p>
+                        <p id="leading-candidate" class="text-2xl font-bold text-purple-600">-</p>
+                    </div>
+                    <i class="fas fa-crown text-2xl text-purple-500"></i>
+                </div>
+                <div class="mt-2">
+                    <p class="text-xs text-gray-500" id="leading-votes">0 votes</p>
+                </div>
+            </div>
+
+            <div class="stats-card border-orange-500 rounded-xl p-6 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-gray-600">Dernier vote</p>
+                        <p id="last-vote-time" class="text-lg font-bold text-orange-600">-</p>
+                    </div>
+                    <i class="fas fa-clock text-2xl text-orange-500"></i>
+                </div>
+                <div class="mt-2">
+                    <p class="text-xs text-gray-500">Mise à jour en temps réel</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphiques et statistiques détaillées -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+            <!-- Graphique circulaire -->
+            <div class="xl:col-span-2 bg-white rounded-2xl p-6 shadow-lg">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">📈 Répartition des votes par candidat</h3>
+                <div class="h-80">
+                    <canvas id="votes-chart"></canvas>
+                </div>
+            </div>
+
+            <!-- Statistiques par classe -->
+            <div class="bg-white rounded-2xl p-6 shadow-lg">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">🎓 Participation par niveau</h3>
+                <div id="class-stats" class="space-y-4">
+                    <!-- Les statistiques par classe seront ajoutées ici dynamiquement -->
+                    <div class="text-center py-8">
+                        <i class="fas fa-chart-pie text-3xl text-gray-300 mb-2"></i>
+                        <p class="text-gray-500">Chargement des données...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barres de progression des candidats -->
+        <div class="bg-white rounded-2xl p-6 shadow-lg mb-8">
+            <h3 class="text-xl font-bold text-gray-800 mb-6">🏆 Progression des candidats</h3>
+            <div class="space-y-6">
+                <!-- Candidat Noir -->
+                <div class="candidate-progress">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user-tie text-white text-sm"></i>
+                            </div>
+                            <span class="font-semibold text-gray-800">Candidat Noir</span>
+                        </div>
+                        <span class="text-sm font-bold text-gray-700" id="noir-percentage">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-4">
+                        <div id="noir-progress" class="progress-bar h-4 rounded-full bg-gray-800" style="width: 0%">
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-xs text-gray-500" id="noir-votes">0 votes</span>
+                        <span class="text-xs text-gray-500">Élégance</span>
+                    </div>
+                </div>
+
+                <!-- Candidat Violet -->
+                <div class="candidate-progress">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user-tie text-white text-sm"></i>
+                            </div>
+                            <span class="font-semibold text-gray-800">Candidat Violet</span>
+                        </div>
+                        <span class="text-sm font-bold text-gray-700" id="violet-percentage">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-4">
+                        <div id="violet-progress" class="progress-bar h-4 rounded-full bg-purple-600" style="width: 0%">
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-xs text-gray-500" id="violet-votes">0 votes</span>
+                        <span class="text-xs text-gray-500">Innovation</span>
+                    </div>
+                </div>
+
+                <!-- Candidat Marron -->
+                <div class="candidate-progress">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-amber-700 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user-tie text-white text-sm"></i>
+                            </div>
+                            <span class="font-semibold text-gray-800">Candidat Marron</span>
+                        </div>
+                        <span class="text-sm font-bold text-gray-700" id="marron-percentage">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-4">
+                        <div id="marron-progress" class="progress-bar h-4 rounded-full bg-amber-700" style="width: 0%">
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-xs text-gray-500" id="marron-votes">0 votes</span>
+                        <span class="text-xs text-gray-500">Tradition</span>
+                    </div>
+                </div>
+
+                <!-- Candidat Vert -->
+                <div class="candidate-progress">
+                    <div class="flex justify-between items-center mb-2">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user-tie text-white text-sm"></i>
+                            </div>
+                            <span class="font-semibold text-gray-800">Candidat Vert</span>
+                        </div>
+                        <span class="text-sm font-bold text-gray-700" id="vert-percentage">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-4">
+                        <div id="vert-progress" class="progress-bar h-4 rounded-full bg-green-600" style="width: 0%">
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mt-1">
+                        <span class="text-xs text-gray-500" id="vert-votes">0 votes</span>
+                        <span class="text-xs text-gray-500">Écologie</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tableau détaillé des votants -->
+        <div class="bg-white rounded-2xl p-6 shadow-lg">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800">👥 Liste détaillée des votants</h3>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <input type="text" id="search-voters"
+                            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            placeholder="Rechercher...">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
+                    <select title="select" id="filter-class"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <option value="">Toutes les classes</option>
+                        <option value="L1">L1</option>
+                        <option value="L2">L2</option>
+                        <option value="L3">L3</option>
+                        <option value="L4">L4</option>
+                        <option value="L5">L5</option>
+                    </select>
+                    <select title="select" id="filter-candidate"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <option value="">Tous les candidats</option>
+                        <option value="noir">Noir</option>
+                        <option value="violet">Violet</option>
+                        <option value="marron">Marron</option>
+                        <option value="vert">Vert</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-700">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3">Matricule</th>
+                            <th class="px-4 py-3">Nom complet</th>
+                            <th class="px-4 py-3">Email</th>
+                            <th class="px-4 py-3">Classe</th>
+                            <th class="px-4 py-3">Candidat</th>
+                            <th class="px-4 py-3">Date & Heure</th>
+                            <th class="px-4 py-3">Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="detailed-voters-list">
+                        <!-- Les votants seront ajoutés ici dynamiquement -->
+                        <tr>
+                            <td colspan="7" class="px-4 py-8 text-center text-gray-500">
+                                <i class="fas fa-users text-3xl mb-2 text-gray-300"></i>
+                                <p>Chargement des données des votants...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="flex justify-between items-center mt-6 pt-4 border-t border-gray-200">
+                <div class="text-sm text-gray-600">
+                    Affichage de <span id="start-index">0</span> à <span id="end-index">0</span> sur <span
+                        id="total-voters-count">0</span> votants
+                </div>
+                <div class="flex space-x-2">
+                    <button title="Bouton précédent" id="prev-page"
+                        class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span id="current-page" class="px-3 py-1 bg-purple-600 text-white rounded-lg">1</span>
+                    <button title="Bouton suivant" id="next-page"
+                        class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pied de page -->
+        <div class="text-center mt-8 text-white/70">
+            <p>📊 Tableau de bord des statistiques - Vote PetitPass</p>
+            <p class="text-sm mt-1">Dernière mise à jour : <span id="last-update">-</span></p>
+        </div>
+    </div>
+</body>
+
+</html>
